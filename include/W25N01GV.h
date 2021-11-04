@@ -9,31 +9,32 @@ extern "C" {
 #include <stdbool.h>
 
 #define MAX_TRANS_SIZE 2048+4
+#define MAX_ALLOWED_ADDR 0x07FF
 
 //Protection Register Bit Fields
-#define SRP0   0b10000000 //Status Regiter Protect-0 (Volatile Writable, OTP Lock)
-#define BP3    0b01000000 //Block Protect Bits (Volatile Writable, OTP Lock)
-#define BP2    0b00100000 //Block Protect Bits (Volatile Writable, OTP Lock)
-#define BP1    0b00010000 //Block Protect Bits (Volatile Writable, OTP Lock)
-#define BP0    0b00001000 //Block Protect Bits (Volatile Writable, OTP Lock)
-#define TB     0b00000100 //Top/Botton Procted Bits (Volatile Writable, OTP Lock)
-#define WP_E   0b00000010 ///WP Enable Bit (Volatile Writable, OTP Lock)
-#define SRP1   0b00000001 //Status Register Protect-1 (Volatile Writable, OTP Lock)
-#define BPB    BP3|BP2|BP1|BP0 //Block Protect Bits
+#define SRP0       0b10000000 //Status Regiter Protect-0 (Volatile Writable, OTP Lock)
+#define BP3        0b01000000 //Block Protect Bits (Volatile Writable, OTP Lock)
+#define BP2        0b00100000 //Block Protect Bits (Volatile Writable, OTP Lock)
+#define BP1        0b00010000 //Block Protect Bits (Volatile Writable, OTP Lock)
+#define BP0        0b00001000 //Block Protect Bits (Volatile Writable, OTP Lock)
+#define TB         0b00000100 //Top/Botton Procted Bits (Volatile Writable, OTP Lock)
+#define WP_E       0b00000010 ///WP Enable Bit (Volatile Writable, OTP Lock)
+#define SRP1       0b00000001 //Status Register Protect-1 (Volatile Writable, OTP Lock)
+#define BPB        BP3|BP2|BP1|BP0 //Block Protect Bits
 
 //Configuration Register Bit Fields
-#define OTP_L  0b10000000 //OTP Data Pages Lock (OTP Lock)
-#define OTP_E  0b01000000 //Enter OTP Mode (Volatile Writable)
-#define SR1_L  0b00100000 //Status Regiter-1 Lock (OTP Lock)
-#define ECC_E  0b00010000 //Enable ECC (Volatile Writable)
-#define BUF    0b00001000 //Buffer Mode (Volatile Writable)
+#define OTP_L      0b10000000 //OTP Data Pages Lock (OTP Lock)
+#define OTP_E      0b01000000 //Enter OTP Mode (Volatile Writable)
+#define SR1_L      0b00100000 //Status Regiter-1 Lock (OTP Lock)
+#define ECC_E      0b00010000 //Enable ECC (Volatile Writable)
+#define BUF        0b00001000 //Buffer Mode (Volatile Writable)
 
 //Status Register-3
-#define LUT_F  0b01000000 //BBM LUT Full (Status-Only)
-#define ECC_1  0b00110000 //ECC Status Bit (Status-Only)
-#define P_FAIL 0b00001000 //Program Failure (Status-Only)
-#define E_FAIL 0b00000100 //Erase Failure (Status-Only)
-#define WEL    0b00000010 //Write Enable Latch (Status-Only)
+#define LUT_F      0b01000000 //BBM LUT Full (Status-Only)
+#define ECC_1      0b00110000 //ECC Status Bit (Status-Only)
+#define P_FAIL     0b00001000 //Program Failure (Status-Only)
+#define E_FAIL     0b00000100 //Erase Failure (Status-Only)
+#define WEL        0b00000010 //Write Enable Latch (Status-Only)
 #define STAT_BUSY  0b00000001
 
 #define WINBOND_MAN_ID       0xEF

@@ -14,8 +14,6 @@
 #include "driver/gpio.h"
 #include <bitset>
 
-#include <iostream>
-
 namespace{
     //Instruction Set Table
     enum instruction_code {
@@ -66,7 +64,7 @@ struct winbond{
             .post_cb = 0
         };
 
-        opCode = (uint8_t *)heap_caps_malloc(max_trans_size, MALLOC_CAP_DMA); //creates a DMA-suitable chunk of memory
+        opCode = static_cast<uint8_t *>(heap_caps_malloc(max_trans_size, MALLOC_CAP_DMA)); //creates a DMA-suitable chunk of memory
         memset(opCode, 0, max_trans_size);
 
         gpio_set_direction(HOLD,GPIO_MODE_OUTPUT);
@@ -192,7 +190,7 @@ esp_err_t w25_WritePermission(const winbond_t *w25, bool state){
 
 esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size){
     esp_err_t err = ESP_OK;
-    // uint8_t opCode[512] = {0};
+    assert(column_addr<=MAX_ALLOWED_ADDR); //MAXIMUM ALLOWED ADDRESS
     if (w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){ //CHECKS IF MEMORY IS BUSY
         err = ESP_FAIL;
     }else{
@@ -205,9 +203,9 @@ esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t
             w25->opCode[2] |= (column_bits[i]<<i);
             w25->opCode[1] |= (column_bits[i+8]<<i);
         }
-   
-        err = vspi_transmission(w25->opCode,buffer_size,w25->opCode,w25->handle);
-        memcpy(out_buffer,w25->opCode,buffer_size);
+
+        err = vspi_transmission(w25->opCode,buffer_size+4,w25->opCode,w25->handle);
+        memcpy(out_buffer,w25->opCode+4,buffer_size);
     } 
     return err;
 }
@@ -238,11 +236,18 @@ esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
         opCode[2] |= (page_bits[i+8]<<i);
     }
 
-    return vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle);
+    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle);
+
+    if (w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),E_FAIL)){
+        err = ESP_ERR_INVALID_STATE;
+    }
+
+    return err;
 }
 
 esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const uint8_t *in_buffer, size_t buffer_size){
     esp_err_t err = ESP_OK;
+    assert(column_addr<=MAX_ALLOWED_ADDR); //MAXIMUM ALLOWED ADDRESS
     assert(buffer_size<=2048+4);
     w25->opCode[0] = instruction_code::PROG_DATA_LOAD;
     std::bitset<16> column_bits{column_addr};
@@ -252,10 +257,10 @@ esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const 
         w25->opCode[2] |= (column_bits[i]<<i);
         w25->opCode[1] |= (column_bits[i+8]<<i);
     }
-
+    
     memcpy((w25->opCode)+3,in_buffer,buffer_size);
-    for (int i = 0; i < buffer_size+4; i++)printf("%.2x ", w25->opCode[i]);
-    // err = vspi_transmission(w25->opCode, buffer_size+3, w25->opCode, w25->handle);
+    
+    err = vspi_transmission(w25->opCode, buffer_size+3, w25->opCode, w25->handle);
    
     //Se WEL FOR ZERO RETORNAR ERRO EM OPERACOES DE ESCRITA
     return err;
@@ -273,5 +278,15 @@ esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr){
         opCode[2] |= (page_bits[i+8]<<i);
     }
 
-    return vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle);
+    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle);
+
+    if (w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),P_FAIL)){
+        err = ESP_ERR_INVALID_STATE;
+    }else if (err == ESP_OK){
+        while(w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){
+            printf("MEMORY IS BUSY\n");
+            vTaskDelay(10);
+        }
+    }
+    return err;
 }
