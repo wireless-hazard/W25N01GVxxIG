@@ -31,7 +31,7 @@ extern "C" {
 
 //Status Register-3
 #define LUT_F      0b01000000 //BBM LUT Full (Status-Only)
-#define ECC_1      0b00110000 //ECC Status Bit (Status-Only)
+#define ECC_1      0b00100000 //ECC Status Bit (Status-Only)
 #define P_FAIL     0b00001000 //Program Failure (Status-Only)
 #define E_FAIL     0b00000100 //Erase Failure (Status-Only)
 #define WEL        0b00000010 //Write Enable Latch (Status-Only)
@@ -52,8 +52,10 @@ typedef struct winbond winbond_t;
 winbond_t *init_w25_struct(size_t max_trans_size);
 esp_err_t deinit_w25_struct(winbond_t *w25);
 esp_err_t vspi_w25_alloc_bus(winbond_t *w25);
-esp_err_t w25_reset(const winbond_t *w25);
-esp_err_t w25_getJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size);
+esp_err_t vspi_w25_free_bus(winbond_t *w25);
+
+esp_err_t w25_Reset(const winbond_t *w25);
+esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size);
 uint8_t w25_ReadStatusRegister(const winbond_t *w25, reg_addr register_address);
 bool w25_evaluateStatusRegisterBit(uint8_t registerOutput, uint8_t bitValue);
 esp_err_t w25_WriteStatusRegister(const winbond_t *w25, reg_addr register_address, uint8_t bitValue);
@@ -64,6 +66,9 @@ esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr);
 esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const uint8_t *in_buffer, size_t buffer_size);
 esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr);
 
+esp_err_t w25_Initialize(const winbond_t *w25);
+esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, uint8_t *out_buffer, size_t buffer_size);
+esp_err_t w25_WriteMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, const uint8_t *in_buffer, size_t buffer_size);
 
 #ifdef __cplusplus
 }

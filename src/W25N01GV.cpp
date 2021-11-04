@@ -5,6 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
 #include "../include/W25N01GV.h"
@@ -67,6 +68,8 @@ struct winbond{
         opCode = static_cast<uint8_t *>(heap_caps_malloc(max_trans_size, MALLOC_CAP_DMA)); //creates a DMA-suitable chunk of memory
         memset(opCode, 0, max_trans_size);
 
+        spi_bus_mutex = xSemaphoreCreateBinary();
+
         gpio_set_direction(HOLD,GPIO_MODE_OUTPUT);
         gpio_set_direction(WP,GPIO_MODE_OUTPUT);
         gpio_set_level(HOLD, 1); // 0 = Puts the memory out of the pause state
@@ -76,6 +79,7 @@ struct winbond{
     spi_device_interface_config_t dev_config;
     spi_device_handle_t handle;
     uint8_t *opCode;
+    SemaphoreHandle_t spi_bus_mutex;
 
     void opCode_free(void);
 };	
@@ -101,8 +105,17 @@ esp_err_t vspi_w25_alloc_bus(winbond_t *w25){
 
     esp_err_t err = spi_bus_initialize(VSPI_HOST, &vspi_config, 2);
     err = spi_bus_add_device(VSPI_HOST, &w25->dev_config, &w25->handle);
+    xSemaphoreGive(w25->spi_bus_mutex);
+
     return err;
 
+}
+esp_err_t vspi_w25_free_bus(winbond_t *w25){
+    xSemaphoreTake(w25->spi_bus_mutex, portMAX_DELAY);
+    esp_err_t err = spi_bus_remove_device(w25->handle);
+    err = spi_bus_free(VSPI_HOST);
+    xSemaphoreGive(w25->spi_bus_mutex);
+    return err;
 }
 
 winbond_t *init_w25_struct(size_t max_trans_size){
@@ -112,12 +125,13 @@ winbond_t *init_w25_struct(size_t max_trans_size){
 }
 
 esp_err_t deinit_w25_struct(winbond_t *w25){
+    xSemaphoreTake(w25->spi_bus_mutex, portMAX_DELAY);
     w25->opCode_free();
     delete(w25);
     return ESP_OK;
 }
 
-static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, uint8_t *out_buffer, spi_device_handle_t handle){
+static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, uint8_t *out_buffer, spi_device_handle_t handle, SemaphoreHandle_t spi_bus_mutex){
     spi_transaction_t transaction = {
         .flags = 0,
         .cmd = 0,
@@ -128,12 +142,15 @@ static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, ui
         .tx_buffer = opCode,
         .rx_buffer = out_buffer
     };
-    return spi_device_transmit(handle,&transaction);
+    xSemaphoreTake(spi_bus_mutex, portMAX_DELAY);
+    esp_err_t err = spi_device_transmit(handle,&transaction);
+    xSemaphoreGive(spi_bus_mutex);
+    return err;
 }
 
 /* LOW LEVEL DRIVER FUNCTIONS*/
 
-esp_err_t w25_reset(const winbond_t *w25){
+esp_err_t w25_Reset(const winbond_t *w25){
     
     esp_err_t err = ESP_OK;
     if (w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){ //RESETS IF THE MEMORY IS NOT BUSY
@@ -143,15 +160,15 @@ esp_err_t w25_reset(const winbond_t *w25){
     }else{
 
         uint8_t opCode[] = {instruction_code::W25_DEVICE_RESET};
-        err = vspi_transmission(opCode,sizeof(opCode),NULL,w25->handle);
+        err = vspi_transmission(opCode,sizeof(opCode),NULL,w25->handle, w25->spi_bus_mutex);
     }
     return err;
 }
 
-esp_err_t w25_getJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size){
+esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size){
     assert(buffer_size>=3);
     uint8_t opCode[5] = {instruction_code::JEDEC_ID, 0x00, 0x00, 0x00, 0x00};
-    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle);
+    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex);
     out_buffer[0] = opCode[2];
     out_buffer[1] = opCode[3];
     out_buffer[2] = opCode[4];
@@ -161,7 +178,7 @@ esp_err_t w25_getJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffe
 uint8_t w25_ReadStatusRegister(const winbond_t *w25, reg_addr register_address){
     uint8_t opCode[9] = {instruction_code::READ_STATUS_REG, register_address, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t buffer = 0;
-    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle);
+    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex);
     assert(err==ESP_OK);
     if (err == ESP_OK){
         buffer = opCode[2];
@@ -175,7 +192,7 @@ bool w25_evaluateStatusRegisterBit(uint8_t registerOutput, uint8_t bitValue){
 
 esp_err_t w25_WriteStatusRegister(const winbond_t *w25, reg_addr register_address, uint8_t bitValue){
     uint8_t opCode[3] = {instruction_code::WRITE_STATUS_REG, register_address, bitValue};
-    return vspi_transmission(opCode,sizeof(opCode),NULL,w25->handle);
+    return vspi_transmission(opCode,sizeof(opCode),NULL,w25->handle, w25->spi_bus_mutex);
 }
 
 esp_err_t w25_WritePermission(const winbond_t *w25, bool state){
@@ -185,7 +202,7 @@ esp_err_t w25_WritePermission(const winbond_t *w25, bool state){
     }else{
         opCode[0] = WRITE_DISABLE;
     }
-    return vspi_transmission(opCode,1,NULL,w25->handle);
+    return vspi_transmission(opCode,1,NULL,w25->handle, w25->spi_bus_mutex);
 }
 
 esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size){
@@ -204,7 +221,7 @@ esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t
             w25->opCode[1] |= (column_bits[i+8]<<i);
         }
 
-        err = vspi_transmission(w25->opCode,buffer_size+4,w25->opCode,w25->handle);
+        err = vspi_transmission(w25->opCode,buffer_size+4,w25->opCode,w25->handle, w25->spi_bus_mutex);
         memcpy(out_buffer,w25->opCode+4,buffer_size);
     } 
     return err;
@@ -221,7 +238,7 @@ esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr){
         opCode[2] |= (page_bits[i+8]<<i);
     }
 
-    return vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle);
+    return vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle, w25->spi_bus_mutex);
 
 }
 
@@ -235,8 +252,9 @@ esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
         opCode[3] |= (page_bits[i]<<i);
         opCode[2] |= (page_bits[i+8]<<i);
     }
-
-    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle);
+    
+    w25_WritePermission(w25,true);
+    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle, w25->spi_bus_mutex);
 
     if (w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),E_FAIL)){
         err = ESP_ERR_INVALID_STATE;
@@ -259,10 +277,9 @@ esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const 
     }
     
     memcpy((w25->opCode)+3,in_buffer,buffer_size);
-    
-    err = vspi_transmission(w25->opCode, buffer_size+3, w25->opCode, w25->handle);
+    w25_WritePermission(w25,true);
+    err = vspi_transmission(w25->opCode, buffer_size+3, w25->opCode, w25->handle, w25->spi_bus_mutex);
    
-    //Se WEL FOR ZERO RETORNAR ERRO EM OPERACOES DE ESCRITA
     return err;
 }
 
@@ -278,7 +295,7 @@ esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr){
         opCode[2] |= (page_bits[i+8]<<i);
     }
 
-    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle);
+    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), NULL, w25->handle, w25->spi_bus_mutex);
 
     if (w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),P_FAIL)){
         err = ESP_ERR_INVALID_STATE;
@@ -288,5 +305,44 @@ esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr){
             vTaskDelay(10);
         }
     }
+    return err;
+}
+
+//High Level Functions
+
+esp_err_t w25_Initialize(const winbond_t *w25){
+    esp_err_t err = ESP_OK;
+
+    ESP_ERROR_CHECK(w25_Reset(w25));
+    vTaskDelay(800/portTICK_PERIOD_MS);
+
+    ESP_ERROR_CHECK(w25_WriteStatusRegister(w25, CONFIG_REG, ECC_E|BUF|0x00));
+    ESP_ERROR_CHECK(w25_WriteStatusRegister(w25, PROTEC_REG, 0x00));
+
+    return err;
+}
+
+esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, uint8_t *out_buffer, size_t buffer_size){
+    esp_err_t err = ESP_OK;
+
+    ESP_ERROR_CHECK(w25_PageDataRead(w25, page_addr));
+    err = w25_ReadDataBuffer(w25, column_addr, out_buffer, buffer_size);
+
+    if( ((w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),ECC_1))) || (err != ESP_OK)){
+        err = ESP_FAIL;
+    }
+
+    return err;
+}
+
+esp_err_t w25_WriteMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, const uint8_t *in_buffer, size_t buffer_size){
+    esp_err_t err = ESP_OK;
+
+    err = w25_LoadProgramData(w25, column_addr, in_buffer, buffer_size);
+    
+    if (err == ESP_OK){
+        err = w25_ProgramExecute(w25, page_addr);
+    }
+
     return err;
 }
