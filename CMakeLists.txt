@@ -1,7 +1,6 @@
 set(COMPONENT_SRCS
     "src/W25N01GV.cpp")
 set(COMPONENT_ADD_INCLUDEDIRS "include")
-set(COMPONENT_REQUIRES "SPIbus")
 
 register_component()
 

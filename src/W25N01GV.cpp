@@ -46,8 +46,10 @@ constexpr gpio_num_t WP = GPIO_NUM_16;
 
 constexpr uint32_t CLOCK_SPEED = 8000000; // up to 1MHz for all registers
 
+RTC_DATA_ATTR uint16_t current_address_RTC;
+
 struct winbond{
-	winbond(size_t max_trans_size){
+	winbond(size_t max_trans_size) : buffer_size{max_trans_size}{
         dev_config = {
             .command_bits = 0,
             .address_bits = 0,
@@ -79,6 +81,7 @@ struct winbond{
     spi_device_interface_config_t dev_config;
     spi_device_handle_t handle;
     uint8_t *opCode;
+    size_t buffer_size;
     SemaphoreHandle_t spi_bus_mutex;
 
     void opCode_free(void);
@@ -129,6 +132,16 @@ esp_err_t deinit_w25_struct(winbond_t *w25){
     w25->opCode_free();
     delete(w25);
     return ESP_OK;
+}
+
+uint16_t w25_RecoverCurrentAddr(void){
+    return current_address_RTC;
+}
+
+esp_err_t w25_CommitCurrentAddr(uint16_t page_addr){
+    esp_err_t err = ESP_OK;
+    current_address_RTC = page_addr;
+    return err;
 }
 
 static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, uint8_t *out_buffer, spi_device_handle_t handle, SemaphoreHandle_t spi_bus_mutex){
@@ -220,15 +233,17 @@ esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t
             w25->opCode[2] |= (column_bits[i]<<i);
             w25->opCode[1] |= (column_bits[i+8]<<i);
         }
-
-        err = vspi_transmission(w25->opCode,buffer_size+4,w25->opCode,w25->handle, w25->spi_bus_mutex);
+        assert((buffer_size+4) <= w25->buffer_size); //Size of the sent message cant be bigger than the actual transmitted buffer
+        err = vspi_transmission(w25->opCode,buffer_size+4,w25->opCode,w25->handle, w25->spi_bus_mutex); //THIS LINE IS CORRUPTING THE HEAP MEMORY
+        heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
         memcpy(out_buffer,w25->opCode+4,buffer_size);
+        heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
     } 
     return err;
 }
 
 esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr){
-
+    assert(page_addr<MAX_ALLOWED_PAGEBLOCK);
     uint8_t opCode[4] = {instruction_code::PAGE_DATA_READ,0x00,0x00,0x00};
     std::bitset<16> page_bits{page_addr};
 
@@ -243,9 +258,10 @@ esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr){
 }
 
 esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
-    
+    assert(page_addr<MAX_ALLOWED_PAGEBLOCK);
+    uint16_t block = (0xFFC0 & page_addr);
     uint8_t opCode[4] = {instruction_code::BLOCK_ERASE,0x00,0x00,0x00};
-    std::bitset<16> page_bits{page_addr};
+    std::bitset<16> page_bits{block};
 
     for (int i = 0; i < 8; i++)
     {
@@ -285,6 +301,7 @@ esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const 
 
 esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr){
     
+    assert(page_addr<MAX_ALLOWED_PAGEBLOCK);
     uint8_t opCode[4] = {instruction_code::PROG_EXEC,0x00,0x00,0x00};
 
     std::bitset<16> page_bits{page_addr};
@@ -329,6 +346,7 @@ esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t pa
     err = w25_ReadDataBuffer(w25, column_addr, out_buffer, buffer_size);
 
     if( ((w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),ECC_1))) || (err != ESP_OK)){
+        ESP_LOGE("READ MEMORY ERROR: ", "ESP_FAIL");
         err = ESP_FAIL;
     }
 

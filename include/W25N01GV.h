@@ -10,6 +10,7 @@ extern "C" {
 
 #define MAX_TRANS_SIZE 2048+4
 #define MAX_ALLOWED_ADDR 0x07FF
+#define MAX_ALLOWED_PAGEBLOCK 0xFFC0 //This might be wrong, CHECK IT LATER
 
 //Protection Register Bit Fields
 #define SRP0       0b10000000 //Status Regiter Protect-0 (Volatile Writable, OTP Lock)
@@ -53,6 +54,9 @@ winbond_t *init_w25_struct(size_t max_trans_size);
 esp_err_t deinit_w25_struct(winbond_t *w25);
 esp_err_t vspi_w25_alloc_bus(winbond_t *w25);
 esp_err_t vspi_w25_free_bus(winbond_t *w25);
+
+uint16_t w25_RecoverCurrentAddr(void);
+esp_err_t w25_CommitCurrentAddr(uint16_t page_addr);
 
 esp_err_t w25_Reset(const winbond_t *w25);
 esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size);
