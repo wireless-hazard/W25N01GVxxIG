@@ -8,10 +8,6 @@ extern "C" {
 #include "esp_err.h"
 #include <stdbool.h>
 
-#define MAX_TRANS_SIZE 2048+4
-#define MAX_ALLOWED_ADDR 0x07FF
-#define MAX_ALLOWED_PAGEBLOCK 0xFFC0 //This might be wrong, CHECK IT LATER
-
 //Protection Register Bit Fields
 #define SRP0       0b10000000 //Status Regiter Protect-0 (Volatile Writable, OTP Lock)
 #define BP3        0b01000000 //Block Protect Bits (Volatile Writable, OTP Lock)

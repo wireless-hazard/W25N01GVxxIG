@@ -46,27 +46,30 @@ constexpr gpio_num_t WP = GPIO_NUM_16;
 
 constexpr uint32_t CLOCK_SPEED = 8000000; // up to 1MHz for all registers
 
+constexpr size_t MAX_TRANS_SIZE = 2048+4;
+constexpr uint16_t MAX_ALLOWED_ADDR = 2047U;
+constexpr uint16_t MAX_ALLOWED_PAGEBLOCK = 65472U; //This might be wrong, CHECK IT LATER
+
 RTC_DATA_ATTR uint16_t current_address_RTC;
 
 struct winbond{
-	winbond(size_t max_trans_size) : buffer_size{max_trans_size}{
-        dev_config = {
-            .command_bits = 0,
-            .address_bits = 0,
-            .dummy_bits = 0,
-            .mode = 0, //SPI MODE
-            .duty_cycle_pos = 128,
-            .cs_ena_pretrans = 0,
-            .cs_ena_posttrans= 0,
-            .clock_speed_hz = CLOCK_SPEED,
-            .input_delay_ns = 0,
-            .spics_io_num = CS,
-            .flags = SPI_DEVICE_NO_DUMMY,
-            .queue_size = 1,
-            .pre_cb = 0,
-            .post_cb = 0
-        };
-
+	explicit winbond(size_t max_trans_size) : dev_config{
+        .command_bits = 0,
+        .address_bits = 0,
+        .dummy_bits = 0,
+        .mode = 0, //SPI MODE
+        .duty_cycle_pos = 128,
+        .cs_ena_pretrans = 0,
+        .cs_ena_posttrans= 0,
+        .clock_speed_hz = CLOCK_SPEED,
+        .input_delay_ns = 0,
+        .spics_io_num = CS,
+        .flags = SPI_DEVICE_NO_DUMMY,
+        .queue_size = 1,
+        .pre_cb = 0,
+        .post_cb = 0
+    }, buffer_size{max_trans_size}{
+        
         opCode = static_cast<uint8_t *>(heap_caps_malloc(max_trans_size, MALLOC_CAP_DMA)); //creates a DMA-suitable chunk of memory
         memset(opCode, 0, max_trans_size);
 
@@ -107,7 +110,11 @@ esp_err_t vspi_w25_alloc_bus(winbond_t *w25){
     };
 
     esp_err_t err = spi_bus_initialize(VSPI_HOST, &vspi_config, 2);
-    err = spi_bus_add_device(VSPI_HOST, &w25->dev_config, &w25->handle);
+    if (err == ESP_OK){
+        err = spi_bus_add_device(VSPI_HOST, &w25->dev_config, &w25->handle);
+    }else{
+        err = ESP_FAIL;
+    }
     xSemaphoreGive(w25->spi_bus_mutex);
 
     return err;
@@ -116,7 +123,11 @@ esp_err_t vspi_w25_alloc_bus(winbond_t *w25){
 esp_err_t vspi_w25_free_bus(winbond_t *w25){
     xSemaphoreTake(w25->spi_bus_mutex, portMAX_DELAY);
     esp_err_t err = spi_bus_remove_device(w25->handle);
-    err = spi_bus_free(VSPI_HOST);
+    if (err == ESP_OK){
+        err = spi_bus_free(VSPI_HOST);
+    }else{
+        err = ESP_FAIL;
+    }
     xSemaphoreGive(w25->spi_bus_mutex);
     return err;
 }
@@ -149,7 +160,7 @@ static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, ui
         .flags = 0,
         .cmd = 0,
         .addr = 0,
-        .length = opCode_size*8,
+        .length = opCode_size*static_cast<size_t>(8),
         .rxlength = 0,
         .user = NULL,
         .tx_buffer = opCode,
@@ -179,7 +190,7 @@ esp_err_t w25_Reset(const winbond_t *w25){
 }
 
 esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size){
-    assert(buffer_size>=3);
+    assert(buffer_size >= static_cast<size_t>(3));
     uint8_t opCode[5] = {instruction_code::JEDEC_ID, 0x00, 0x00, 0x00, 0x00};
     esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex);
     out_buffer[0] = opCode[2];
@@ -200,7 +211,7 @@ uint8_t w25_ReadStatusRegister(const winbond_t *w25, reg_addr register_address){
 }
 
 bool w25_evaluateStatusRegisterBit(uint8_t registerOutput, uint8_t bitValue){
-    return ((registerOutput & bitValue) > 0); 
+    return ((registerOutput & bitValue) > 0U); 
 }
 
 esp_err_t w25_WriteStatusRegister(const winbond_t *w25, reg_addr register_address, uint8_t bitValue){
@@ -233,7 +244,7 @@ esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t
             w25->opCode[2] |= (column_bits[i]<<i);
             w25->opCode[1] |= (column_bits[i+8]<<i);
         }
-        assert((buffer_size+4) <= w25->buffer_size); //Size of the sent message cant be bigger than the actual transmitted buffer
+        assert((buffer_size + static_cast<size_t>(4)) <= w25->buffer_size); //Size of the sent message cant be bigger than the actual transmitted buffer
         err = vspi_transmission(w25->opCode,buffer_size+4,w25->opCode,w25->handle, w25->spi_bus_mutex); //THIS LINE IS CORRUPTING THE HEAP MEMORY
         heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
         memcpy(out_buffer,w25->opCode+4,buffer_size);
@@ -259,7 +270,7 @@ esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr){
 
 esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
     assert(page_addr<MAX_ALLOWED_PAGEBLOCK);
-    uint16_t block = (0xFFC0 & page_addr);
+    uint16_t block = (65472U & page_addr);
     uint8_t opCode[4] = {instruction_code::BLOCK_ERASE,0x00,0x00,0x00};
     std::bitset<16> page_bits{block};
 
@@ -282,7 +293,7 @@ esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
 esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const uint8_t *in_buffer, size_t buffer_size){
     esp_err_t err = ESP_OK;
     assert(column_addr<=MAX_ALLOWED_ADDR); //MAXIMUM ALLOWED ADDRESS
-    assert(buffer_size<=2048+4);
+    assert(buffer_size <= static_cast<size_t>(2048+4) );
     w25->opCode[0] = instruction_code::PROG_DATA_LOAD;
     std::bitset<16> column_bits{column_addr};
 
@@ -318,9 +329,11 @@ esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr){
         err = ESP_ERR_INVALID_STATE;
     }else if (err == ESP_OK){
         while(w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){
-            printf("MEMORY IS BUSY\n");
+            ESP_LOGW("MEMORY IS BUSY","\n");
             vTaskDelay(10);
         }
+    }else{
+        err = ESP_FAIL;
     }
     return err;
 }
