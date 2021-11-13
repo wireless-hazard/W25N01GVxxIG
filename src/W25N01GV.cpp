@@ -51,6 +51,7 @@ constexpr uint16_t MAX_ALLOWED_ADDR = 2047U;
 constexpr uint16_t MAX_ALLOWED_PAGEBLOCK = 65472U; //This might be wrong, CHECK IT LATER
 
 RTC_DATA_ATTR uint16_t current_address_RTC;
+RTC_DATA_ATTR uint16_t current_column_RTC;
 
 struct winbond{
 	explicit winbond(size_t max_trans_size) : dev_config{
@@ -152,6 +153,16 @@ uint16_t w25_RecoverCurrentAddr(void){
 esp_err_t w25_CommitCurrentAddr(uint16_t page_addr){
     esp_err_t err = ESP_OK;
     current_address_RTC = page_addr;
+    return err;
+}
+
+uint16_t w25_RecoverCurrentColumn(void){
+    return current_column_RTC;
+}
+
+esp_err_t w25_CommitCurrentColumn(uint16_t column_addr){
+    esp_err_t err = ESP_OK;
+    current_column_RTC = column_addr;
     return err;
 }
 

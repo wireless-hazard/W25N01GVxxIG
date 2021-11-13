@@ -53,6 +53,8 @@ esp_err_t vspi_w25_free_bus(winbond_t *w25);
 
 uint16_t w25_RecoverCurrentAddr(void);
 esp_err_t w25_CommitCurrentAddr(uint16_t page_addr);
+uint16_t w25_RecoverCurrentColumn(void);
+esp_err_t w25_CommitCurrentColumn(uint16_t column_addr);
 
 esp_err_t w25_Reset(const winbond_t *w25);
 esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size);
