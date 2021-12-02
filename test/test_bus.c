@@ -8,7 +8,6 @@
 #define SIZE 2048
 
 static winbond_t *w25 = NULL;
-static uint8_t out_buffer[SIZE] = {0};
 
 void setUp(void) {
 
@@ -37,6 +36,7 @@ TEST_CASE("struct initialization", "[init denit]")
 TEST_CASE("JEDED", "[]")
 {
 	uint8_t jedec_id[3] = {0xEF,0xAA,0x21};
+	uint8_t out_buffer[3] = {0};
 	esp_err_t err = w25_GetJedecID(w25, out_buffer, 3);
 	TEST_ASSERT_EQUAL_INT (ESP_OK, err);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(jedec_id, out_buffer, 3);
