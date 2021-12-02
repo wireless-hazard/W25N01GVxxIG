@@ -171,3 +171,20 @@ TEST_CASE("WRITING BIG CHUNKS OF DATA", "[]"){
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	TEST_ASSERT_EQUAL_HEX8_ARRAY(big_chunk1, receiver, 512);
 }
+
+TEST_CASE("WRITING FLOAT ARRAYS", "[]"){
+	float big_float_chunk[3][128] = {{0},{79.0,36.5,0,89.0,15,89.46,0.687},{0}};
+	uint8_t *p_big_float_chunk = NULL;
+	uint8_t receiver[128*4] = {0};
+	float *p_receiver_float = NULL;
+
+	esp_err_t err = w25_BlockErase(w25, 0x0000);
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+	p_big_float_chunk = (uint8_t *)&big_float_chunk[1][0];
+	err = w25_WriteMemory(w25, 0x0000, 0x0000, p_big_float_chunk, 128*4);
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+	err = w25_ReadMemory(w25, 0x0000, 0x0000, receiver, 128*4);
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+	p_receiver_float = (float *)&receiver;
+	TEST_ASSERT_EQUAL_FLOAT_ARRAY(&big_float_chunk[1], p_receiver_float, 128);
+}
