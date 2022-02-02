@@ -56,6 +56,11 @@ esp_err_t w25_CommitCurrentAddr(uint16_t page_addr);
 uint16_t w25_RecoverCurrentColumn(void);
 esp_err_t w25_CommitCurrentColumn(uint16_t column_addr);
 
+/**
+Resets the memory to its initial state, clearing volatile registers
+@param winbond_t* **w25** - pointer to the object refered to.
+@return **esp_err_t** - codigo de erro conforme documentacao do ESP. 
+*/
 esp_err_t w25_Reset(const winbond_t *w25);
 esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size);
 uint8_t w25_ReadStatusRegister(const winbond_t *w25, reg_addr register_address);

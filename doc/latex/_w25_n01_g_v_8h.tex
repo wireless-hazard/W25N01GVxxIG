@@ -1,0 +1,421 @@
+\section{/home/magno/\+Documents/github/memory/components/\+W25\+N01\+G\+Vxx\+I\+G/include/\+W25\+N01\+GV.h File Reference}
+\label{_w25_n01_g_v_8h}\index{/home/magno/\+Documents/github/memory/components/\+W25\+N01\+G\+Vxx\+I\+G/include/\+W25\+N01\+G\+V.\+h@{/home/magno/\+Documents/github/memory/components/\+W25\+N01\+G\+Vxx\+I\+G/include/\+W25\+N01\+G\+V.\+h}}
+{\ttfamily \#include \char`\"{}esp\+\_\+err.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \textbf{ S\+R\+P0}~0b10000000
+\item 
+\#define \textbf{ B\+P3}~0b01000000
+\item 
+\#define \textbf{ B\+P2}~0b00100000
+\item 
+\#define \textbf{ B\+P1}~0b00010000
+\item 
+\#define \textbf{ B\+P0}~0b00001000
+\item 
+\#define \textbf{ TB}~0b00000100
+\item 
+\#define \textbf{ W\+P\+\_\+E}~0b00000010
+\item 
+\#define \textbf{ S\+R\+P1}~0b00000001
+\item 
+\#define \textbf{ B\+PB}~\textbf{ B\+P3}$\vert$\textbf{ B\+P2}$\vert$\textbf{ B\+P1}$\vert$\textbf{ B\+P0}
+\item 
+\#define \textbf{ O\+T\+P\+\_\+L}~0b10000000
+\item 
+\#define \textbf{ O\+T\+P\+\_\+E}~0b01000000
+\item 
+\#define \textbf{ S\+R1\+\_\+L}~0b00100000
+\item 
+\#define \textbf{ E\+C\+C\+\_\+E}~0b00010000
+\item 
+\#define \textbf{ B\+UF}~0b00001000
+\item 
+\#define \textbf{ L\+U\+T\+\_\+F}~0b01000000
+\item 
+\#define \textbf{ E\+C\+C\+\_\+1}~0b00100000
+\item 
+\#define \textbf{ P\+\_\+\+F\+A\+IL}~0b00001000
+\item 
+\#define \textbf{ E\+\_\+\+F\+A\+IL}~0b00000100
+\item 
+\#define \textbf{ W\+EL}~0b00000010
+\item 
+\#define \textbf{ S\+T\+A\+T\+\_\+\+B\+U\+SY}~0b00000001
+\item 
+\#define \textbf{ W\+I\+N\+B\+O\+N\+D\+\_\+\+M\+A\+N\+\_\+\+ID}~0x\+EF
+\item 
+\#define \textbf{ W25\+\_\+\+D\+E\+V\+\_\+\+ID}~0x\+A\+A21
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct winbond \textbf{ winbond\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \textbf{ reg\+\_\+addr} \{ \textbf{ P\+R\+O\+T\+E\+C\+\_\+\+R\+EG} = 0x\+A0, 
+\textbf{ C\+O\+N\+F\+I\+G\+\_\+\+R\+EG} = 0x\+B0, 
+\textbf{ S\+T\+A\+T\+U\+S\+\_\+\+R\+EG} = 0x\+C0
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\textbf{ winbond\+\_\+t} $\ast$ \textbf{ init\+\_\+w25\+\_\+struct} (size\+\_\+t max\+\_\+trans\+\_\+size)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ deinit\+\_\+w25\+\_\+struct} (\textbf{ winbond\+\_\+t} $\ast$w25)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ vspi\+\_\+w25\+\_\+alloc\+\_\+bus} (\textbf{ winbond\+\_\+t} $\ast$w25)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ vspi\+\_\+w25\+\_\+free\+\_\+bus} (\textbf{ winbond\+\_\+t} $\ast$w25)
+\item 
+uint16\+\_\+t \textbf{ w25\+\_\+\+Recover\+Current\+Addr} (void)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Commit\+Current\+Addr} (uint16\+\_\+t page\+\_\+addr)
+\item 
+uint16\+\_\+t \textbf{ w25\+\_\+\+Recover\+Current\+Column} (void)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Commit\+Current\+Column} (uint16\+\_\+t column\+\_\+addr)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Reset} (const \textbf{ winbond\+\_\+t} $\ast$w25)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Get\+Jedec\+ID} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint8\+\_\+t $\ast$out\+\_\+buffer, size\+\_\+t buffer\+\_\+size)
+\item 
+uint8\+\_\+t \textbf{ w25\+\_\+\+Read\+Status\+Register} (const \textbf{ winbond\+\_\+t} $\ast$w25, \textbf{ reg\+\_\+addr} register\+\_\+address)
+\item 
+bool \textbf{ w25\+\_\+evaluate\+Status\+Register\+Bit} (uint8\+\_\+t register\+Output, uint8\+\_\+t bit\+Value)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Write\+Status\+Register} (const \textbf{ winbond\+\_\+t} $\ast$w25, \textbf{ reg\+\_\+addr} register\+\_\+address, uint8\+\_\+t bit\+Value)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Write\+Permission} (const \textbf{ winbond\+\_\+t} $\ast$w25, bool state)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Read\+Data\+Buffer} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint16\+\_\+t column\+\_\+addr, uint8\+\_\+t $\ast$out\+\_\+buffer, size\+\_\+t buffer\+\_\+size)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Page\+Data\+Read} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint16\+\_\+t page\+\_\+addr)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Block\+Erase} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint16\+\_\+t page\+\_\+addr)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Load\+Program\+Data} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint16\+\_\+t column\+\_\+addr, const uint8\+\_\+t $\ast$in\+\_\+buffer, size\+\_\+t buffer\+\_\+size)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Program\+Execute} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint16\+\_\+t page\+\_\+addr)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Initialize} (const \textbf{ winbond\+\_\+t} $\ast$w25)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Read\+Memory} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint16\+\_\+t column\+\_\+addr, uint16\+\_\+t page\+\_\+addr, uint8\+\_\+t $\ast$out\+\_\+buffer, size\+\_\+t buffer\+\_\+size)
+\item 
+esp\+\_\+err\+\_\+t \textbf{ w25\+\_\+\+Write\+Memory} (const \textbf{ winbond\+\_\+t} $\ast$w25, uint16\+\_\+t column\+\_\+addr, uint16\+\_\+t page\+\_\+addr, const uint8\+\_\+t $\ast$in\+\_\+buffer, size\+\_\+t buffer\+\_\+size)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\mbox{\label{_w25_n01_g_v_8h_aae12db52186464dfd673cfc592bac7d3}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!B\+P0@{B\+P0}}
+\index{B\+P0@{B\+P0}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{B\+P0}
+{\footnotesize\ttfamily \#define B\+P0~0b00001000}
+
+\mbox{\label{_w25_n01_g_v_8h_a4b8245eedb4132a5dbf185f41162755a}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!B\+P1@{B\+P1}}
+\index{B\+P1@{B\+P1}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{B\+P1}
+{\footnotesize\ttfamily \#define B\+P1~0b00010000}
+
+\mbox{\label{_w25_n01_g_v_8h_a7e58b99188cbdc9240f8ef5212db300c}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!B\+P2@{B\+P2}}
+\index{B\+P2@{B\+P2}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{B\+P2}
+{\footnotesize\ttfamily \#define B\+P2~0b00100000}
+
+\mbox{\label{_w25_n01_g_v_8h_acbb10f497ee392e0ddcdda2fa35f4e8c}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!B\+P3@{B\+P3}}
+\index{B\+P3@{B\+P3}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{B\+P3}
+{\footnotesize\ttfamily \#define B\+P3~0b01000000}
+
+\mbox{\label{_w25_n01_g_v_8h_a3c88fd21abb83ef11461ce750c466828}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!B\+PB@{B\+PB}}
+\index{B\+PB@{B\+PB}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{B\+PB}
+{\footnotesize\ttfamily \#define B\+PB~\textbf{ B\+P3}$\vert$\textbf{ B\+P2}$\vert$\textbf{ B\+P1}$\vert$\textbf{ B\+P0}}
+
+\mbox{\label{_w25_n01_g_v_8h_a24f52ac52d6e714cb04a5aa01be3bdd0}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!B\+UF@{B\+UF}}
+\index{B\+UF@{B\+UF}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{B\+UF}
+{\footnotesize\ttfamily \#define B\+UF~0b00001000}
+
+\mbox{\label{_w25_n01_g_v_8h_a8f0547e641e1efc8110437fa85aa722e}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!E\+\_\+\+F\+A\+IL@{E\+\_\+\+F\+A\+IL}}
+\index{E\+\_\+\+F\+A\+IL@{E\+\_\+\+F\+A\+IL}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{E\+\_\+\+F\+A\+IL}
+{\footnotesize\ttfamily \#define E\+\_\+\+F\+A\+IL~0b00000100}
+
+\mbox{\label{_w25_n01_g_v_8h_a51363fd6e5f981850dcaf186798dd0e3}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!E\+C\+C\+\_\+1@{E\+C\+C\+\_\+1}}
+\index{E\+C\+C\+\_\+1@{E\+C\+C\+\_\+1}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{E\+C\+C\+\_\+1}
+{\footnotesize\ttfamily \#define E\+C\+C\+\_\+1~0b00100000}
+
+\mbox{\label{_w25_n01_g_v_8h_a08a280ae94dbc0221ab84799269a0339}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!E\+C\+C\+\_\+E@{E\+C\+C\+\_\+E}}
+\index{E\+C\+C\+\_\+E@{E\+C\+C\+\_\+E}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{E\+C\+C\+\_\+E}
+{\footnotesize\ttfamily \#define E\+C\+C\+\_\+E~0b00010000}
+
+\mbox{\label{_w25_n01_g_v_8h_a1d9b2a2b465b84b75ca5b611e7453948}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!L\+U\+T\+\_\+F@{L\+U\+T\+\_\+F}}
+\index{L\+U\+T\+\_\+F@{L\+U\+T\+\_\+F}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{L\+U\+T\+\_\+F}
+{\footnotesize\ttfamily \#define L\+U\+T\+\_\+F~0b01000000}
+
+\mbox{\label{_w25_n01_g_v_8h_aad198355c4bb23f66d39b45e80e7360e}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!O\+T\+P\+\_\+E@{O\+T\+P\+\_\+E}}
+\index{O\+T\+P\+\_\+E@{O\+T\+P\+\_\+E}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{O\+T\+P\+\_\+E}
+{\footnotesize\ttfamily \#define O\+T\+P\+\_\+E~0b01000000}
+
+\mbox{\label{_w25_n01_g_v_8h_ab0c898691373bf0150d5484c6a8b7e54}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!O\+T\+P\+\_\+L@{O\+T\+P\+\_\+L}}
+\index{O\+T\+P\+\_\+L@{O\+T\+P\+\_\+L}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{O\+T\+P\+\_\+L}
+{\footnotesize\ttfamily \#define O\+T\+P\+\_\+L~0b10000000}
+
+\mbox{\label{_w25_n01_g_v_8h_a372e43a470f82821af00ceacb31d42dd}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!P\+\_\+\+F\+A\+IL@{P\+\_\+\+F\+A\+IL}}
+\index{P\+\_\+\+F\+A\+IL@{P\+\_\+\+F\+A\+IL}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{P\+\_\+\+F\+A\+IL}
+{\footnotesize\ttfamily \#define P\+\_\+\+F\+A\+IL~0b00001000}
+
+\mbox{\label{_w25_n01_g_v_8h_abce3dfd62187128484652ee170fd407c}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!S\+R1\+\_\+L@{S\+R1\+\_\+L}}
+\index{S\+R1\+\_\+L@{S\+R1\+\_\+L}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{S\+R1\+\_\+L}
+{\footnotesize\ttfamily \#define S\+R1\+\_\+L~0b00100000}
+
+\mbox{\label{_w25_n01_g_v_8h_acc42d64b0b0d7708fe34d0203672439a}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!S\+R\+P0@{S\+R\+P0}}
+\index{S\+R\+P0@{S\+R\+P0}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{S\+R\+P0}
+{\footnotesize\ttfamily \#define S\+R\+P0~0b10000000}
+
+\mbox{\label{_w25_n01_g_v_8h_a79857a5c0465ec8637bae41830cf4d98}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!S\+R\+P1@{S\+R\+P1}}
+\index{S\+R\+P1@{S\+R\+P1}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{S\+R\+P1}
+{\footnotesize\ttfamily \#define S\+R\+P1~0b00000001}
+
+\mbox{\label{_w25_n01_g_v_8h_a060bfc87531fa0c5658cc6a0d1815dec}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!S\+T\+A\+T\+\_\+\+B\+U\+SY@{S\+T\+A\+T\+\_\+\+B\+U\+SY}}
+\index{S\+T\+A\+T\+\_\+\+B\+U\+SY@{S\+T\+A\+T\+\_\+\+B\+U\+SY}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{S\+T\+A\+T\+\_\+\+B\+U\+SY}
+{\footnotesize\ttfamily \#define S\+T\+A\+T\+\_\+\+B\+U\+SY~0b00000001}
+
+\mbox{\label{_w25_n01_g_v_8h_a40ae1c7543178d54fd8e397072faa25c}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!TB@{TB}}
+\index{TB@{TB}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{TB}
+{\footnotesize\ttfamily \#define TB~0b00000100}
+
+\mbox{\label{_w25_n01_g_v_8h_a00dd418d65fb8d1b9e7a3863d4730f46}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!W25\+\_\+\+D\+E\+V\+\_\+\+ID@{W25\+\_\+\+D\+E\+V\+\_\+\+ID}}
+\index{W25\+\_\+\+D\+E\+V\+\_\+\+ID@{W25\+\_\+\+D\+E\+V\+\_\+\+ID}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{W25\+\_\+\+D\+E\+V\+\_\+\+ID}
+{\footnotesize\ttfamily \#define W25\+\_\+\+D\+E\+V\+\_\+\+ID~0x\+A\+A21}
+
+\mbox{\label{_w25_n01_g_v_8h_a4dedc87650037b8fbbe0bde45c1a8e93}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!W\+EL@{W\+EL}}
+\index{W\+EL@{W\+EL}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{W\+EL}
+{\footnotesize\ttfamily \#define W\+EL~0b00000010}
+
+\mbox{\label{_w25_n01_g_v_8h_a5f2e10783b02a682beefb29438705a57}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!W\+I\+N\+B\+O\+N\+D\+\_\+\+M\+A\+N\+\_\+\+ID@{W\+I\+N\+B\+O\+N\+D\+\_\+\+M\+A\+N\+\_\+\+ID}}
+\index{W\+I\+N\+B\+O\+N\+D\+\_\+\+M\+A\+N\+\_\+\+ID@{W\+I\+N\+B\+O\+N\+D\+\_\+\+M\+A\+N\+\_\+\+ID}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{W\+I\+N\+B\+O\+N\+D\+\_\+\+M\+A\+N\+\_\+\+ID}
+{\footnotesize\ttfamily \#define W\+I\+N\+B\+O\+N\+D\+\_\+\+M\+A\+N\+\_\+\+ID~0x\+EF}
+
+\mbox{\label{_w25_n01_g_v_8h_aff1af2015ab6475881fa9d0c3b7708fb}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!W\+P\+\_\+E@{W\+P\+\_\+E}}
+\index{W\+P\+\_\+E@{W\+P\+\_\+E}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{W\+P\+\_\+E}
+{\footnotesize\ttfamily \#define W\+P\+\_\+E~0b00000010}
+
+
+
+\subsection{Typedef Documentation}
+\mbox{\label{_w25_n01_g_v_8h_a2fd22e9a00eb9f19eb14023b2f23416e}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!winbond\+\_\+t@{winbond\+\_\+t}}
+\index{winbond\+\_\+t@{winbond\+\_\+t}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{winbond\+\_\+t}
+{\footnotesize\ttfamily typedef struct winbond \textbf{ winbond\+\_\+t}}
+
+
+
+\subsection{Enumeration Type Documentation}
+\mbox{\label{_w25_n01_g_v_8h_ab6d0e47d42eb85254a59ac2df1fdab7a}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!reg\+\_\+addr@{reg\+\_\+addr}}
+\index{reg\+\_\+addr@{reg\+\_\+addr}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{reg\+\_\+addr}
+{\footnotesize\ttfamily enum \textbf{ reg\+\_\+addr}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{P\+R\+O\+T\+E\+C\+\_\+\+R\+EG@{P\+R\+O\+T\+E\+C\+\_\+\+R\+EG}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!P\+R\+O\+T\+E\+C\+\_\+\+R\+EG@{P\+R\+O\+T\+E\+C\+\_\+\+R\+EG}}}\mbox{\label{_w25_n01_g_v_8h_ab6d0e47d42eb85254a59ac2df1fdab7aa7896643206df9eca5463cce8e471c1c3}} 
+P\+R\+O\+T\+E\+C\+\_\+\+R\+EG&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{C\+O\+N\+F\+I\+G\+\_\+\+R\+EG@{C\+O\+N\+F\+I\+G\+\_\+\+R\+EG}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!C\+O\+N\+F\+I\+G\+\_\+\+R\+EG@{C\+O\+N\+F\+I\+G\+\_\+\+R\+EG}}}\mbox{\label{_w25_n01_g_v_8h_ab6d0e47d42eb85254a59ac2df1fdab7aab3f64c894bf71c526d81c21a800fb531}} 
+C\+O\+N\+F\+I\+G\+\_\+\+R\+EG&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{S\+T\+A\+T\+U\+S\+\_\+\+R\+EG@{S\+T\+A\+T\+U\+S\+\_\+\+R\+EG}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!S\+T\+A\+T\+U\+S\+\_\+\+R\+EG@{S\+T\+A\+T\+U\+S\+\_\+\+R\+EG}}}\mbox{\label{_w25_n01_g_v_8h_ab6d0e47d42eb85254a59ac2df1fdab7aa3afff7bc5df59d1d61acc81ccff13b23}} 
+S\+T\+A\+T\+U\+S\+\_\+\+R\+EG&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\subsection{Function Documentation}
+\mbox{\label{_w25_n01_g_v_8h_a8040c20ae326e44a688758b78c0f0b24}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!deinit\+\_\+w25\+\_\+struct@{deinit\+\_\+w25\+\_\+struct}}
+\index{deinit\+\_\+w25\+\_\+struct@{deinit\+\_\+w25\+\_\+struct}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{deinit\+\_\+w25\+\_\+struct()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t deinit\+\_\+w25\+\_\+struct (\begin{DoxyParamCaption}\item[{\textbf{ winbond\+\_\+t} $\ast$}]{w25 }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a465fa4f1480f9ecc4efeb3e0c89b9f9e}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!init\+\_\+w25\+\_\+struct@{init\+\_\+w25\+\_\+struct}}
+\index{init\+\_\+w25\+\_\+struct@{init\+\_\+w25\+\_\+struct}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{init\+\_\+w25\+\_\+struct()}
+{\footnotesize\ttfamily \textbf{ winbond\+\_\+t}$\ast$ init\+\_\+w25\+\_\+struct (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{max\+\_\+trans\+\_\+size }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a7119f34eb3df0dc31dfef0eff0ff3693}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!vspi\+\_\+w25\+\_\+alloc\+\_\+bus@{vspi\+\_\+w25\+\_\+alloc\+\_\+bus}}
+\index{vspi\+\_\+w25\+\_\+alloc\+\_\+bus@{vspi\+\_\+w25\+\_\+alloc\+\_\+bus}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{vspi\+\_\+w25\+\_\+alloc\+\_\+bus()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t vspi\+\_\+w25\+\_\+alloc\+\_\+bus (\begin{DoxyParamCaption}\item[{\textbf{ winbond\+\_\+t} $\ast$}]{w25 }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_ad6fb3cbe30326d7cc60cf88f444c931f}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!vspi\+\_\+w25\+\_\+free\+\_\+bus@{vspi\+\_\+w25\+\_\+free\+\_\+bus}}
+\index{vspi\+\_\+w25\+\_\+free\+\_\+bus@{vspi\+\_\+w25\+\_\+free\+\_\+bus}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{vspi\+\_\+w25\+\_\+free\+\_\+bus()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t vspi\+\_\+w25\+\_\+free\+\_\+bus (\begin{DoxyParamCaption}\item[{\textbf{ winbond\+\_\+t} $\ast$}]{w25 }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_aa081e561616cad89a37215626e830fa9}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Block\+Erase@{w25\+\_\+\+Block\+Erase}}
+\index{w25\+\_\+\+Block\+Erase@{w25\+\_\+\+Block\+Erase}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Block\+Erase()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Block\+Erase (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{page\+\_\+addr }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a728dddae1bc26bb72102470e715fead6}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Commit\+Current\+Addr@{w25\+\_\+\+Commit\+Current\+Addr}}
+\index{w25\+\_\+\+Commit\+Current\+Addr@{w25\+\_\+\+Commit\+Current\+Addr}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Commit\+Current\+Addr()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Commit\+Current\+Addr (\begin{DoxyParamCaption}\item[{uint16\+\_\+t}]{page\+\_\+addr }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_aa0a8c7a4e64431ab879d3666a090ccb7}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Commit\+Current\+Column@{w25\+\_\+\+Commit\+Current\+Column}}
+\index{w25\+\_\+\+Commit\+Current\+Column@{w25\+\_\+\+Commit\+Current\+Column}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Commit\+Current\+Column()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Commit\+Current\+Column (\begin{DoxyParamCaption}\item[{uint16\+\_\+t}]{column\+\_\+addr }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_aa0de5ea92ff19da9bd3efdf057c01e6d}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+evaluate\+Status\+Register\+Bit@{w25\+\_\+evaluate\+Status\+Register\+Bit}}
+\index{w25\+\_\+evaluate\+Status\+Register\+Bit@{w25\+\_\+evaluate\+Status\+Register\+Bit}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+evaluate\+Status\+Register\+Bit()}
+{\footnotesize\ttfamily bool w25\+\_\+evaluate\+Status\+Register\+Bit (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{register\+Output,  }\item[{uint8\+\_\+t}]{bit\+Value }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a59711eeea7d2ba8d056f644370bfad21}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Get\+Jedec\+ID@{w25\+\_\+\+Get\+Jedec\+ID}}
+\index{w25\+\_\+\+Get\+Jedec\+ID@{w25\+\_\+\+Get\+Jedec\+ID}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Get\+Jedec\+I\+D()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Get\+Jedec\+ID (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint8\+\_\+t $\ast$}]{out\+\_\+buffer,  }\item[{size\+\_\+t}]{buffer\+\_\+size }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a1eda1a8b962fdbe6cd545175f0d7cdd5}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Initialize@{w25\+\_\+\+Initialize}}
+\index{w25\+\_\+\+Initialize@{w25\+\_\+\+Initialize}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Initialize()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Initialize (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25 }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a49f2aebfa2081217e22c18b7d141d7d0}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Load\+Program\+Data@{w25\+\_\+\+Load\+Program\+Data}}
+\index{w25\+\_\+\+Load\+Program\+Data@{w25\+\_\+\+Load\+Program\+Data}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Load\+Program\+Data()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Load\+Program\+Data (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{column\+\_\+addr,  }\item[{const uint8\+\_\+t $\ast$}]{in\+\_\+buffer,  }\item[{size\+\_\+t}]{buffer\+\_\+size }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_ac7dd63e607cb0f3bea196f63fcae3f96}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Page\+Data\+Read@{w25\+\_\+\+Page\+Data\+Read}}
+\index{w25\+\_\+\+Page\+Data\+Read@{w25\+\_\+\+Page\+Data\+Read}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Page\+Data\+Read()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Page\+Data\+Read (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{page\+\_\+addr }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a62248c340a28ba708b9f9d482eddf63a}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Program\+Execute@{w25\+\_\+\+Program\+Execute}}
+\index{w25\+\_\+\+Program\+Execute@{w25\+\_\+\+Program\+Execute}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Program\+Execute()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Program\+Execute (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{page\+\_\+addr }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a84a181d8280eb384471aa3788b1c145f}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Read\+Data\+Buffer@{w25\+\_\+\+Read\+Data\+Buffer}}
+\index{w25\+\_\+\+Read\+Data\+Buffer@{w25\+\_\+\+Read\+Data\+Buffer}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Read\+Data\+Buffer()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Read\+Data\+Buffer (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{column\+\_\+addr,  }\item[{uint8\+\_\+t $\ast$}]{out\+\_\+buffer,  }\item[{size\+\_\+t}]{buffer\+\_\+size }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a8710f66229a2f0ceb05815251641e272}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Read\+Memory@{w25\+\_\+\+Read\+Memory}}
+\index{w25\+\_\+\+Read\+Memory@{w25\+\_\+\+Read\+Memory}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Read\+Memory()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Read\+Memory (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{column\+\_\+addr,  }\item[{uint16\+\_\+t}]{page\+\_\+addr,  }\item[{uint8\+\_\+t $\ast$}]{out\+\_\+buffer,  }\item[{size\+\_\+t}]{buffer\+\_\+size }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a9aa01d389cbc8b5ef9c20e05c78e3847}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Read\+Status\+Register@{w25\+\_\+\+Read\+Status\+Register}}
+\index{w25\+\_\+\+Read\+Status\+Register@{w25\+\_\+\+Read\+Status\+Register}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Read\+Status\+Register()}
+{\footnotesize\ttfamily uint8\+\_\+t w25\+\_\+\+Read\+Status\+Register (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{\textbf{ reg\+\_\+addr}}]{register\+\_\+address }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a303da0116217022c0f7ec0d568840a78}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Recover\+Current\+Addr@{w25\+\_\+\+Recover\+Current\+Addr}}
+\index{w25\+\_\+\+Recover\+Current\+Addr@{w25\+\_\+\+Recover\+Current\+Addr}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Recover\+Current\+Addr()}
+{\footnotesize\ttfamily uint16\+\_\+t w25\+\_\+\+Recover\+Current\+Addr (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_a478298d3c97a0fc6726c4aa9ad137a22}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Recover\+Current\+Column@{w25\+\_\+\+Recover\+Current\+Column}}
+\index{w25\+\_\+\+Recover\+Current\+Column@{w25\+\_\+\+Recover\+Current\+Column}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Recover\+Current\+Column()}
+{\footnotesize\ttfamily uint16\+\_\+t w25\+\_\+\+Recover\+Current\+Column (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_aab81a62c7f4963ff64c93261136d63b7}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Reset@{w25\+\_\+\+Reset}}
+\index{w25\+\_\+\+Reset@{w25\+\_\+\+Reset}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Reset()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Reset (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25 }\end{DoxyParamCaption})}
+
+Resets the memory to its initial state, clearing volatile registers 
+\begin{DoxyParams}{Parameters}
+{\em winbond\+\_\+t$\ast$} & {\bfseries w25} -\/ pointer to the object refered to. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\bfseries esp\+\_\+err\+\_\+t} -\/ codigo de erro conforme documentacao do E\+SP. 
+\end{DoxyReturn}
+\mbox{\label{_w25_n01_g_v_8h_a290abd3b2d5aabe87ceb0cc101f0fcf9}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Write\+Memory@{w25\+\_\+\+Write\+Memory}}
+\index{w25\+\_\+\+Write\+Memory@{w25\+\_\+\+Write\+Memory}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Write\+Memory()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Write\+Memory (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{column\+\_\+addr,  }\item[{uint16\+\_\+t}]{page\+\_\+addr,  }\item[{const uint8\+\_\+t $\ast$}]{in\+\_\+buffer,  }\item[{size\+\_\+t}]{buffer\+\_\+size }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_ad960b1f5fdf503e9d39f5acd300e9a17}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Write\+Permission@{w25\+\_\+\+Write\+Permission}}
+\index{w25\+\_\+\+Write\+Permission@{w25\+\_\+\+Write\+Permission}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Write\+Permission()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Write\+Permission (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{bool}]{state }\end{DoxyParamCaption})}
+
+\mbox{\label{_w25_n01_g_v_8h_ac46e161fd2422285ae40bb6f52fb8d41}} 
+\index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Write\+Status\+Register@{w25\+\_\+\+Write\+Status\+Register}}
+\index{w25\+\_\+\+Write\+Status\+Register@{w25\+\_\+\+Write\+Status\+Register}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
+\subsubsection{w25\+\_\+\+Write\+Status\+Register()}
+{\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Write\+Status\+Register (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{\textbf{ reg\+\_\+addr}}]{register\+\_\+address,  }\item[{uint8\+\_\+t}]{bit\+Value }\end{DoxyParamCaption})}
+
