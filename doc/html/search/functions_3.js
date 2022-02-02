@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['w25_5fblockerase',['w25_BlockErase',['../_w25_n01_g_v_8h.html#aa081e561616cad89a37215626e830fa9',1,'W25N01GV.h']]],
+  ['w25_5fcommitcurrentaddr',['w25_CommitCurrentAddr',['../_w25_n01_g_v_8h.html#a728dddae1bc26bb72102470e715fead6',1,'W25N01GV.h']]],
+  ['w25_5fcommitcurrentcolumn',['w25_CommitCurrentColumn',['../_w25_n01_g_v_8h.html#aa0a8c7a4e64431ab879d3666a090ccb7',1,'W25N01GV.h']]],
+  ['w25_5fevaluatestatusregisterbit',['w25_evaluateStatusRegisterBit',['../_w25_n01_g_v_8h.html#aa0de5ea92ff19da9bd3efdf057c01e6d',1,'W25N01GV.h']]],
+  ['w25_5fgetjedecid',['w25_GetJedecID',['../_w25_n01_g_v_8h.html#a59711eeea7d2ba8d056f644370bfad21',1,'W25N01GV.h']]],
+  ['w25_5finitialize',['w25_Initialize',['../_w25_n01_g_v_8h.html#a1eda1a8b962fdbe6cd545175f0d7cdd5',1,'W25N01GV.h']]],
+  ['w25_5floadprogramdata',['w25_LoadProgramData',['../_w25_n01_g_v_8h.html#a49f2aebfa2081217e22c18b7d141d7d0',1,'W25N01GV.h']]],
+  ['w25_5fpagedataread',['w25_PageDataRead',['../_w25_n01_g_v_8h.html#ac7dd63e607cb0f3bea196f63fcae3f96',1,'W25N01GV.h']]],
+  ['w25_5fprogramexecute',['w25_ProgramExecute',['../_w25_n01_g_v_8h.html#a62248c340a28ba708b9f9d482eddf63a',1,'W25N01GV.h']]],
+  ['w25_5freaddatabuffer',['w25_ReadDataBuffer',['../_w25_n01_g_v_8h.html#a84a181d8280eb384471aa3788b1c145f',1,'W25N01GV.h']]],
+  ['w25_5freadmemory',['w25_ReadMemory',['../_w25_n01_g_v_8h.html#a8710f66229a2f0ceb05815251641e272',1,'W25N01GV.h']]],
+  ['w25_5freadstatusregister',['w25_ReadStatusRegister',['../_w25_n01_g_v_8h.html#a9aa01d389cbc8b5ef9c20e05c78e3847',1,'W25N01GV.h']]],
+  ['w25_5frecovercurrentaddr',['w25_RecoverCurrentAddr',['../_w25_n01_g_v_8h.html#a303da0116217022c0f7ec0d568840a78',1,'W25N01GV.h']]],
+  ['w25_5frecovercurrentcolumn',['w25_RecoverCurrentColumn',['../_w25_n01_g_v_8h.html#a478298d3c97a0fc6726c4aa9ad137a22',1,'W25N01GV.h']]],
+  ['w25_5freset',['w25_Reset',['../_w25_n01_g_v_8h.html#aab81a62c7f4963ff64c93261136d63b7',1,'W25N01GV.h']]],
+  ['w25_5fwritememory',['w25_WriteMemory',['../_w25_n01_g_v_8h.html#a290abd3b2d5aabe87ceb0cc101f0fcf9',1,'W25N01GV.h']]],
+  ['w25_5fwritepermission',['w25_WritePermission',['../_w25_n01_g_v_8h.html#ad960b1f5fdf503e9d39f5acd300e9a17',1,'W25N01GV.h']]],
+  ['w25_5fwritestatusregister',['w25_WriteStatusRegister',['../_w25_n01_g_v_8h.html#ac46e161fd2422285ae40bb6f52fb8d41',1,'W25N01GV.h']]]
+];
