@@ -59,6 +59,10 @@ extern "C" void app_main(){
 
 			write = true;
 		}
+		//DEINIT MEMORY - START%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    	ESP_LOGW("tag","FREE BUS: %s",esp_err_to_name(vspi_w25_free_bus(flash_memory)));
+    	ESP_LOGW("tag","FREE STRUCT: %s",esp_err_to_name(deinit_w25_struct(flash_memory)));
+    	//DEINIT MEMORY - END%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	}else{
 		write = true; //Initializes the variable the very first time the esp is powered on
