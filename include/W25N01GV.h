@@ -59,17 +59,64 @@ esp_err_t w25_CommitCurrentColumn(uint16_t column_addr);
 /**
 Resets the memory to its initial state, clearing volatile registers
 @param winbond_t* **w25** - pointer to the object refered to.
-@return **esp_err_t** - codigo de erro conforme documentacao do ESP. 
+@return **esp_err_t** - Error code according to esp idf documentation. 
 */
 esp_err_t w25_Reset(const winbond_t *w25);
+/**
+Retrieves the memory's JEDEC ID. This function can be used to verify 
+if the device can be reached.
+@param winbond_t* **w25** - pointer to the object refered to.
+@return **esp_err_t** - Error code according to esp idf documentation.
+*/
 esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size);
+/**
+Read the Status Register and return its value. Look up the definitions to know the purpose
+of each individual register 
+@param winbond_t* **w25** - pointer to the object refered to.
+@oaram reg_addr **register_address** - the address of the register you want to read
+@return **uint8_t** returns the current register's value
+*/
 uint8_t w25_ReadStatusRegister(const winbond_t *w25, reg_addr register_address);
+/**
+Checks if a certain bit field of the register is set
+@param uint8_t **registerOutput** - The output received by the function ReadStatusRegister
+@param uint8_t **bitValue** - The especific bit field wanted
+@return **bool** return true if the register is set, false otherwise
+*/
 bool w25_evaluateStatusRegisterBit(uint8_t registerOutput, uint8_t bitValue);
+/**
+Write the Status Register and returns if it was successful.
+@param winbond_t* **w25** - pointer to the object refered to.
+@param reg_addr **register_address** - the address of the register you want to read
+@param uint8_t **bitValue** - bitmask of the values to store in the Status register
+\bug This function overwrites the previous configuration of the register.
+\attention Pay attention to which register are read only
+@return **esp_err_t** - Error code according to esp idf documentation.
+*/
 esp_err_t w25_WriteStatusRegister(const winbond_t *w25, reg_addr register_address, uint8_t bitValue);
+/**
+Turns on or off the ability to write into memory, including the internal registers.  
+@param winbond_t* **w25** - pointer to the object refered to.
+@param bool **state** - true if you want to enable the memory to be written, false otherwise.
+@return **esp_err_t** - Error code according to esp idf documentation.
+*/
 esp_err_t w25_WritePermission(const winbond_t *w25, bool state);
+/**
+
+*/
 esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size);
 esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr);
+/**
+Sets all memory of the specified block field on the (page_addr) to the default value.
+\remark See the Issues tab on the github repository for more information on how to use this function.
+@param winbond_t* **w25** - pointer to the object refered to.
+@param uint16_t **page_addr** - the block to be erase corresponds to the 10 most significant bits of the page_addr
+@return **esp_err_t** - Error code according to esp idf documentation.
+*/
 esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr);
+/**
+
+*/
 esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const uint8_t *in_buffer, size_t buffer_size);
 esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr);
 

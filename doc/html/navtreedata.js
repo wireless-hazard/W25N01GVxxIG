@@ -1,6 +1,7 @@
 var NAVTREE =
 [
   [ "W25N01GV", "index.html", [
+    [ "Bug List", "bug.html", null ],
     [ "Files", null, [
       [ "File List", "files.html", "files" ],
       [ "File Members", "globals.html", [
