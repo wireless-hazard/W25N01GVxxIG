@@ -44,5 +44,5 @@ jobs:
       - uses: actions/checkout@v2
       
       - name: Check Misra C
-        run: docker run --rm -v ${PWD}:/src facthunder/cppcheck:latest cppcheck src/ --addon=misra.py
+        run: docker run --rm -v ${PWD}:/src facthunder/cppcheck:latest cppcheck src/ --addon=misra.py --enable=all ----error-exitcode=1
       
