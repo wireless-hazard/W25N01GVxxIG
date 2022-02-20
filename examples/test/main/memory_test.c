@@ -1,4 +1,5 @@
 #include "unity.h"
+#include "esp_system.h"
 
 void app_main(void){
 
@@ -16,5 +17,6 @@ void app_main(void){
 	unity_run_test_by_name("WRITING FLOAT ARRAYS");
 
 	UNITY_END();
+	esp_restart();
 	// unity_run_menu();
 }
