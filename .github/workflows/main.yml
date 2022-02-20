@@ -47,6 +47,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Build and show result
         uses: batov/esp32_qemu_runner@master
+        with:
+          input: examples/test/
       - name: inspect log
         run: cat report.xml
       - name: Publish Unit Test Results
