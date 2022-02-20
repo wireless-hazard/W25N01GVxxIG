@@ -29,12 +29,6 @@ jobs:
       - name: Build the examples folder
         run: docker run --rm -v $PWD:/W25N01GVxxIG -w /W25N01GVxxIG espressif/idf:release-v4.4 /bin/sh -c "cd examples && idf.py build"
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
-
   cppcheck:
   
     runs-on: ubuntu-latest
@@ -46,3 +40,17 @@ jobs:
       - name: Check Misra C
         run: docker run --rm -v ${PWD}:/src facthunder/cppcheck:latest cppcheck src/ --addon=misra.py --enable=all --error-exitcode=1
       
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Build and show result
+        uses: batov/esp32_qemu_runner@master
+      - name: inspect log
+        run: cat report.xml
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+            files: report.xml
