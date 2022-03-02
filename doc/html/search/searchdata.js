@@ -6,7 +6,8 @@ var indexSectionsWithContent =
   3: "w",
   4: "r",
   5: "cps",
-  6: "belopstw"
+  6: "belopstw",
+  7: "b"
 };
 
 var indexSectionNames =
@@ -17,7 +18,8 @@ var indexSectionNames =
   3: "typedefs",
   4: "enums",
   5: "enumvalues",
-  6: "defines"
+  6: "defines",
+  7: "pages"
 };
 
 var indexSectionLabels =
@@ -28,6 +30,7 @@ var indexSectionLabels =
   3: "Typedefs",
   4: "Enumerations",
   5: "Enumerator",
-  6: "Macros"
+  6: "Macros",
+  7: "Pages"
 };
 

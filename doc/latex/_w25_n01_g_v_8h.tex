@@ -309,6 +309,19 @@ S\+T\+A\+T\+U\+S\+\_\+\+R\+EG&\\
 \subsubsection{w25\+\_\+\+Block\+Erase()}
 {\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Block\+Erase (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint16\+\_\+t}]{page\+\_\+addr }\end{DoxyParamCaption})}
 
+Sets all memory of the specified block field on the (page\+\_\+addr) to the default value. \begin{DoxyRemark}{Remarks}
+See the Issues tab on the github repository for more information on how to use this function. 
+\end{DoxyRemark}
+
+\begin{DoxyParams}{Parameters}
+{\em winbond\+\_\+t$\ast$} & {\bfseries w25} -\/ pointer to the object refered to. \\
+\hline
+{\em uint16\+\_\+t} & {\bfseries page\+\_\+addr} -\/ the block to be erase corresponds to the 10 most significant bits of the page\+\_\+addr \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\bfseries esp\+\_\+err\+\_\+t} -\/ Error code according to esp idf documentation. 
+\end{DoxyReturn}
 \mbox{\label{_w25_n01_g_v_8h_a728dddae1bc26bb72102470e715fead6}} 
 \index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Commit\+Current\+Addr@{w25\+\_\+\+Commit\+Current\+Addr}}
 \index{w25\+\_\+\+Commit\+Current\+Addr@{w25\+\_\+\+Commit\+Current\+Addr}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
@@ -327,12 +340,30 @@ S\+T\+A\+T\+U\+S\+\_\+\+R\+EG&\\
 \subsubsection{w25\+\_\+evaluate\+Status\+Register\+Bit()}
 {\footnotesize\ttfamily bool w25\+\_\+evaluate\+Status\+Register\+Bit (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{register\+Output,  }\item[{uint8\+\_\+t}]{bit\+Value }\end{DoxyParamCaption})}
 
+Checks if a certain bit field of the register is set 
+\begin{DoxyParams}{Parameters}
+{\em uint8\+\_\+t} & {\bfseries register\+Output} -\/ The output received by the function Read\+Status\+Register \\
+\hline
+{\em uint8\+\_\+t} & {\bfseries bit\+Value} -\/ The especific bit field wanted \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\bfseries bool} return true if the register is set, false otherwise 
+\end{DoxyReturn}
 \mbox{\label{_w25_n01_g_v_8h_a59711eeea7d2ba8d056f644370bfad21}} 
 \index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Get\+Jedec\+ID@{w25\+\_\+\+Get\+Jedec\+ID}}
 \index{w25\+\_\+\+Get\+Jedec\+ID@{w25\+\_\+\+Get\+Jedec\+ID}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
 \subsubsection{w25\+\_\+\+Get\+Jedec\+I\+D()}
 {\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Get\+Jedec\+ID (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{uint8\+\_\+t $\ast$}]{out\+\_\+buffer,  }\item[{size\+\_\+t}]{buffer\+\_\+size }\end{DoxyParamCaption})}
 
+Retrieves the memory\textquotesingle{}s J\+E\+D\+EC ID. This function can be used to verify if the device can be reached. 
+\begin{DoxyParams}{Parameters}
+{\em winbond\+\_\+t$\ast$} & {\bfseries w25} -\/ pointer to the object refered to. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\bfseries esp\+\_\+err\+\_\+t} -\/ Error code according to esp idf documentation. 
+\end{DoxyReturn}
 \mbox{\label{_w25_n01_g_v_8h_a1eda1a8b962fdbe6cd545175f0d7cdd5}} 
 \index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Initialize@{w25\+\_\+\+Initialize}}
 \index{w25\+\_\+\+Initialize@{w25\+\_\+\+Initialize}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
@@ -375,6 +406,14 @@ S\+T\+A\+T\+U\+S\+\_\+\+R\+EG&\\
 \subsubsection{w25\+\_\+\+Read\+Status\+Register()}
 {\footnotesize\ttfamily uint8\+\_\+t w25\+\_\+\+Read\+Status\+Register (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{\textbf{ reg\+\_\+addr}}]{register\+\_\+address }\end{DoxyParamCaption})}
 
+Read the Status Register and return its value. Look up the definitions to know the purpose of each individual register 
+\begin{DoxyParams}{Parameters}
+{\em winbond\+\_\+t$\ast$} & {\bfseries w25} -\/ pointer to the object refered to.  reg\+\_\+addr {\bfseries register\+\_\+address} -\/ the address of the register you want to read \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\bfseries uint8\+\_\+t} returns the current register\textquotesingle{}s value 
+\end{DoxyReturn}
 \mbox{\label{_w25_n01_g_v_8h_a303da0116217022c0f7ec0d568840a78}} 
 \index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Recover\+Current\+Addr@{w25\+\_\+\+Recover\+Current\+Addr}}
 \index{w25\+\_\+\+Recover\+Current\+Addr@{w25\+\_\+\+Recover\+Current\+Addr}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
@@ -399,7 +438,7 @@ Resets the memory to its initial state, clearing volatile registers
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
-{\bfseries esp\+\_\+err\+\_\+t} -\/ codigo de erro conforme documentacao do E\+SP. 
+{\bfseries esp\+\_\+err\+\_\+t} -\/ Error code according to esp idf documentation. 
 \end{DoxyReturn}
 \mbox{\label{_w25_n01_g_v_8h_a290abd3b2d5aabe87ceb0cc101f0fcf9}} 
 \index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Write\+Memory@{w25\+\_\+\+Write\+Memory}}
@@ -413,9 +452,36 @@ Resets the memory to its initial state, clearing volatile registers
 \subsubsection{w25\+\_\+\+Write\+Permission()}
 {\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Write\+Permission (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{bool}]{state }\end{DoxyParamCaption})}
 
+Turns on or off the ability to write into memory, including the internal registers. 
+\begin{DoxyParams}{Parameters}
+{\em winbond\+\_\+t$\ast$} & {\bfseries w25} -\/ pointer to the object refered to. \\
+\hline
+{\em bool} & {\bfseries state} -\/ true if you want to enable the memory to be written, false otherwise. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\bfseries esp\+\_\+err\+\_\+t} -\/ Error code according to esp idf documentation. 
+\end{DoxyReturn}
 \mbox{\label{_w25_n01_g_v_8h_ac46e161fd2422285ae40bb6f52fb8d41}} 
 \index{W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}!w25\+\_\+\+Write\+Status\+Register@{w25\+\_\+\+Write\+Status\+Register}}
 \index{w25\+\_\+\+Write\+Status\+Register@{w25\+\_\+\+Write\+Status\+Register}!W25\+N01\+G\+V.\+h@{W25\+N01\+G\+V.\+h}}
 \subsubsection{w25\+\_\+\+Write\+Status\+Register()}
 {\footnotesize\ttfamily esp\+\_\+err\+\_\+t w25\+\_\+\+Write\+Status\+Register (\begin{DoxyParamCaption}\item[{const \textbf{ winbond\+\_\+t} $\ast$}]{w25,  }\item[{\textbf{ reg\+\_\+addr}}]{register\+\_\+address,  }\item[{uint8\+\_\+t}]{bit\+Value }\end{DoxyParamCaption})}
 
+Write the Status Register and returns if it was successful. 
+\begin{DoxyParams}{Parameters}
+{\em winbond\+\_\+t$\ast$} & {\bfseries w25} -\/ pointer to the object refered to. \\
+\hline
+{\em reg\+\_\+addr} & {\bfseries register\+\_\+address} -\/ the address of the register you want to read \\
+\hline
+{\em uint8\+\_\+t} & {\bfseries bit\+Value} -\/ bitmask of the values to store in the Status register \\
+\hline
+\end{DoxyParams}
+\begin{DoxyRefDesc}{Bug}
+\item[\textbf{ Bug}]This function overwrites the previous configuration of the register. \end{DoxyRefDesc}
+\begin{DoxyAttention}{Attention}
+Pay attention to which register are read only 
+\end{DoxyAttention}
+\begin{DoxyReturn}{Returns}
+{\bfseries esp\+\_\+err\+\_\+t} -\/ Error code according to esp idf documentation. 
+\end{DoxyReturn}
