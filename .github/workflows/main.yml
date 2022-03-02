@@ -27,7 +27,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Check Misra C
-        run: docker run --rm -v ${PWD}:/src facthunder/cppcheck:latest cppcheck src/ --addon=misra.py --enable=all --include=include/ --suppress=unusedFunction --inline-suppr --error-exitcode=1
+        run: docker run --rm -v ${PWD}:/src facthunder/cppcheck:latest cppcheck src/ --addon=misra.py --enable=all --include=include/ --suppress=unusedFunction --suppress=objectIndex --inline-suppr --error-exitcode=1
 
   # This workflow contains a single job called "build"
   build:
