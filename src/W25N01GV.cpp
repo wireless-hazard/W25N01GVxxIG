@@ -375,7 +375,7 @@ esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t pa
     }
 
     if((w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),ECC_1))){
-        ESP_LOGW("Wrong ECC_1: ", " Values might be wrongly read");
+        ESP_LOGW("Wrong ECC_1: ", " Values might've been wrongly read");
     }
 
     return err;
