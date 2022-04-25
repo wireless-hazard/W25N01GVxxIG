@@ -123,7 +123,6 @@ esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr);
 esp_err_t w25_Initialize(const winbond_t *w25);
 esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, uint8_t *out_buffer, size_t buffer_size);
 /**
-\bug For now, it is not possible to write not beginning from the address 0
 */
 esp_err_t w25_WriteMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, const uint8_t *in_buffer, size_t buffer_size);
 

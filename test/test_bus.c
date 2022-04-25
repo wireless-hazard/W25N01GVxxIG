@@ -213,8 +213,11 @@ TEST_CASE("Continuous writing, same block, Start from 0", "[]"){
 	err = w25_WriteMemory(w25, 0x0000, 0x0000, huge_temp_array, (3*sizeof(float)+3));
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 
-	memcpy(&first_chunkUINT8_T_RECEIVED[0], &huge_temp_array[0], 3*sizeof(float));
-	memcpy(&second_chunk_RECEIVED[0], &huge_temp_array[3*sizeof(float)], 3);
+	err = w25_ReadMemory(w25, 0x0000, 0x0000, first_chunkUINT8_T_RECEIVED, 3*sizeof(float));
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+
+	err = w25_ReadMemory(w25, 3*sizeof(float), 0x0000, second_chunk_RECEIVED, 3);
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 
 	first_chunk_RECEIVED = (float *)&first_chunkUINT8_T_RECEIVED[0];
 	TEST_ASSERT_EQUAL_FLOAT_ARRAY(first_chunk, first_chunk_RECEIVED, 3);
@@ -222,4 +225,40 @@ TEST_CASE("Continuous writing, same block, Start from 0", "[]"){
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(second_chunk, second_chunk_RECEIVED, 3);	
 
 	
+}
+
+TEST_CASE("Continuous writing, same block", "[]"){
+	esp_err_t err = w25_BlockErase(w25, 0);
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+	
+	//First written Block - Start
+	
+	const float first_chunk[3] = {1.2, 3.1415, -15.02};
+	uint8_t *first_chunkUINT8_T = (uint8_t *)(&first_chunk[0]);
+
+	uint8_t first_chunkUINT8_T_RECEIVED[3*sizeof(float)] = {0};
+	float *first_chunk_RECEIVED = NULL;
+	
+	const uint8_t second_chunk[3] = {2, 225, 15};
+	uint8_t second_chunk_RECEIVED[3] = {0};
+
+	err = w25_WriteMemory(w25, 0x0000, 0x0000, first_chunkUINT8_T, (3*sizeof(float)));
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+
+	err = w25_WriteMemory(w25, (3*sizeof(float)), 0x0000, second_chunk, (3));
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+
+
+	err = w25_ReadMemory(w25, 0x0000, 0x0000, first_chunkUINT8_T_RECEIVED, 3*sizeof(float));
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+
+	err = w25_ReadMemory(w25, 3*sizeof(float), 0x0000, second_chunk_RECEIVED, 3);
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+
+	first_chunk_RECEIVED = (float *)&first_chunkUINT8_T_RECEIVED[0];
+	TEST_ASSERT_EQUAL_FLOAT_ARRAY(first_chunk, first_chunk_RECEIVED, 3);
+
+	TEST_ASSERT_EQUAL_UINT8_ARRAY(second_chunk, second_chunk_RECEIVED, 3);	
+
+
 }

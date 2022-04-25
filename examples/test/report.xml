@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Unity" tests="10" failures="0" skips="0">
+<testsuite name="Unity" tests="12" failures="0" skips="0">
     <testcase classname="test_bus" name="struct initialization"/>
     <testcase classname="test_bus" name="JEDED"/>
     <testcase classname="test_bus" name="ERASE_BLOCK"/>
@@ -10,4 +10,6 @@
     <testcase classname="test_bus" name="PROPERLY ERASING BLOCKS"/>
     <testcase classname="test_bus" name="WRITING BIG CHUNKS OF DATA"/>
     <testcase classname="test_bus" name="WRITING FLOAT ARRAYS"/>
+    <testcase classname="test_bus" name="Continuous writing, same block, Start from 0"/>
+    <testcase classname="test_bus" name="Continuous writing, same block"/>
 </testsuite>

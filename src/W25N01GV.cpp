@@ -309,8 +309,8 @@ esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const 
     uint8_t *p_column_bits = reinterpret_cast<uint8_t *>(&column_addr);
 
     w25->opCode[0] = instruction_code::PROG_DATA_LOAD;
-    w25->opCode[1] = p_column_bits[0];
-    w25->opCode[2] = p_column_bits[1];
+    w25->opCode[1] = p_column_bits[1];
+    w25->opCode[2] = p_column_bits[0];
     
     (void)memcpy(&(w25->opCode[3]),in_buffer,buffer_size);
 
@@ -369,9 +369,13 @@ esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t pa
     ESP_ERROR_CHECK(w25_PageDataRead(w25, page_addr));
     err = w25_ReadDataBuffer(w25, column_addr, out_buffer, buffer_size);
 
-    if( ((w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),ECC_1))) || (err != ESP_OK)){
+    if((err != ESP_OK)){
         ESP_LOGE("READ MEMORY ERROR: ", "ESP_FAIL");
         err = ESP_FAIL;
+    }
+
+    if((w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),ECC_1))){
+        ESP_LOGW("Wrong ECC_1: ", " Values might be wrongly read");
     }
 
     return err;
@@ -379,7 +383,6 @@ esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t pa
 
 esp_err_t w25_WriteMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, const uint8_t *in_buffer, size_t buffer_size){
     esp_err_t err = ESP_OK;
-    assert(column_addr == 0);
     err = w25_LoadProgramData(w25, column_addr, in_buffer, buffer_size);
     
     if (err == ESP_OK){
