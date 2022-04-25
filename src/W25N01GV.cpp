@@ -379,7 +379,7 @@ esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t pa
 
 esp_err_t w25_WriteMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, const uint8_t *in_buffer, size_t buffer_size){
     esp_err_t err = ESP_OK;
-
+    assert(column_addr == 0);
     err = w25_LoadProgramData(w25, column_addr, in_buffer, buffer_size);
     
     if (err == ESP_OK){

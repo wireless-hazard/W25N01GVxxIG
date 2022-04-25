@@ -4,6 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <string.h>
+#include "esp_log.h"
 
 #define SIZE 2048
 
@@ -187,4 +188,38 @@ TEST_CASE("WRITING FLOAT ARRAYS", "[]"){
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	p_receiver_float = (float *)&receiver;
 	TEST_ASSERT_EQUAL_FLOAT_ARRAY(&big_float_chunk[1], p_receiver_float, 128);
+}
+
+TEST_CASE("Continuous writing, same block, Start from 0", "[]"){
+
+	esp_err_t err = w25_BlockErase(w25, 0);
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+	
+	//First written Block - Start
+	
+	const float first_chunk[3] = {1.2, 3.1415, -15.02};
+	uint8_t *first_chunkUINT8_T = (uint8_t *)(&first_chunk[0]);
+
+	uint8_t first_chunkUINT8_T_RECEIVED[3*sizeof(float)] = {0};
+	float *first_chunk_RECEIVED = NULL;
+	
+	const uint8_t second_chunk[3] = {2, 225, 15};
+	uint8_t second_chunk_RECEIVED[3] = {0};
+
+	uint8_t huge_temp_array[(3*sizeof(float)+3)] = {0};
+	memcpy(&huge_temp_array[0], first_chunkUINT8_T, 3*sizeof(float));
+	memcpy(&huge_temp_array[3*sizeof(float)], &second_chunk[0], 3);
+
+	err = w25_WriteMemory(w25, 0x0000, 0x0000, huge_temp_array, (3*sizeof(float)+3));
+	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
+
+	memcpy(&first_chunkUINT8_T_RECEIVED[0], &huge_temp_array[0], 3*sizeof(float));
+	memcpy(&second_chunk_RECEIVED[0], &huge_temp_array[3*sizeof(float)], 3);
+
+	first_chunk_RECEIVED = (float *)&first_chunkUINT8_T_RECEIVED[0];
+	TEST_ASSERT_EQUAL_FLOAT_ARRAY(first_chunk, first_chunk_RECEIVED, 3);
+
+	TEST_ASSERT_EQUAL_UINT8_ARRAY(second_chunk, second_chunk_RECEIVED, 3);	
+
+	
 }
