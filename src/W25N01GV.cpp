@@ -56,7 +56,7 @@ RTC_DATA_ATTR uint16_t current_address_RTC;
 RTC_DATA_ATTR uint16_t current_column_RTC;
 
 struct winbond{
-	explicit winbond(size_t max_trans_size, TickType_t p_timeout = 1000) : dev_config{ //cppcheck-suppress misra-c2012-2.7
+	explicit winbond(size_t max_trans_size, TickType_t p_timeout = 1000) : dev_config{ //cppcheck-suppress misra-c2012-2.7 misra-c2012-17.8
         .command_bits = 0,
         .address_bits = 0,
         .dummy_bits = 0,
