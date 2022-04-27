@@ -15,6 +15,8 @@
 #include "driver/gpio.h"
 #include <bitset>
 
+#define N_OF_TRIAL 20
+
 namespace{
     //Instruction Set Table
     enum instruction_code {
@@ -54,7 +56,7 @@ RTC_DATA_ATTR uint16_t current_address_RTC;
 RTC_DATA_ATTR uint16_t current_column_RTC;
 
 struct winbond{
-	explicit winbond(size_t max_trans_size) : dev_config{
+	explicit winbond(size_t max_trans_size, TickType_t p_timeout = 1000) : dev_config{
         .command_bits = 0,
         .address_bits = 0,
         .dummy_bits = 0,
@@ -69,7 +71,7 @@ struct winbond{
         .queue_size = 1,
         .pre_cb = 0,
         .post_cb = 0
-    }, buffer_size{max_trans_size}{
+    }, buffer_size{max_trans_size}, semaphore_timeout{p_timeout}{
         
         opCode = static_cast<uint8_t *>(heap_caps_malloc(max_trans_size, MALLOC_CAP_DMA)); //creates a DMA-suitable chunk of memory
         (void)memset(opCode, 0, max_trans_size);
@@ -87,6 +89,7 @@ struct winbond{
     uint8_t *opCode;
     size_t buffer_size;
     SemaphoreHandle_t spi_bus_mutex;
+    TickType_t semaphore_timeout;
 
     void opCode_free(void);
 };	
@@ -122,14 +125,19 @@ esp_err_t vspi_w25_alloc_bus(winbond_t *w25){
 
 }
 esp_err_t vspi_w25_free_bus(winbond_t *w25){
-    xSemaphoreTake(w25->spi_bus_mutex, portMAX_DELAY);
-    esp_err_t err = spi_bus_remove_device(w25->handle);
-    if (err == ESP_OK){
-        err = spi_bus_free(VSPI_HOST);
+    esp_err_t err = ESP_FAIL;
+    auto sem_timeout = xSemaphoreTake(w25->spi_bus_mutex, w25->semaphore_timeout);
+    if (sem_timeout == pdTRUE){
+        err = spi_bus_remove_device(w25->handle);
+        if (err == ESP_OK){
+            err = spi_bus_free(VSPI_HOST);
+        }else{
+            err = ESP_FAIL;
+        }
+        xSemaphoreGive(w25->spi_bus_mutex);
     }else{
-        err = ESP_FAIL;
+        err = ESP_ERR_TIMEOUT;
     }
-    xSemaphoreGive(w25->spi_bus_mutex);
     return err;
 }
 
@@ -140,11 +148,16 @@ winbond_t *init_w25_struct(size_t max_trans_size){
 }
 
 esp_err_t deinit_w25_struct(winbond_t *w25){
-    xSemaphoreTake(w25->spi_bus_mutex, portMAX_DELAY); //If the bus isn't initialized, 
+    auto sem_timeout = xSemaphoreTake(w25->spi_bus_mutex, w25->semaphore_timeout); //If the bus isn't initialized, 
                                                        //this semaphore won't be never taken (DANGER!!!)
-    w25->opCode_free();
-    delete(w25);
-    return ESP_OK;
+    esp_err_t err = ESP_OK;
+    if (sem_timeout == pdTRUE){
+        w25->opCode_free();
+        delete(w25);
+    }else{
+        err = ESP_ERR_TIMEOUT;
+    }
+    return err;
 }
 
 uint16_t w25_RecoverCurrentAddr(void){
@@ -167,7 +180,7 @@ esp_err_t w25_CommitCurrentColumn(uint16_t column_addr){
     return err;
 }
 
-static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, uint8_t *out_buffer, spi_device_handle_t handle, SemaphoreHandle_t spi_bus_mutex){
+static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, uint8_t *out_buffer, spi_device_handle_t handle, SemaphoreHandle_t spi_bus_mutex, TickType_t timeout){
     spi_transaction_t transaction = {
         .flags = 0,
         .cmd = 0,
@@ -178,9 +191,14 @@ static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, ui
         .tx_buffer = opCode,
         .rx_buffer = out_buffer
     };
-    xSemaphoreTake(spi_bus_mutex, portMAX_DELAY);
-    esp_err_t err = spi_device_transmit(handle,&transaction);
-    xSemaphoreGive(spi_bus_mutex);
+    auto sem_timeout = xSemaphoreTake(spi_bus_mutex, timeout);
+    esp_err_t err = ESP_FAIL;
+    if (sem_timeout == pdTRUE){
+        err = spi_device_transmit(handle,&transaction);
+        xSemaphoreGive(spi_bus_mutex);
+    }else{
+        err = ESP_ERR_TIMEOUT;
+    }
     return err;
 }
 
@@ -195,7 +213,7 @@ esp_err_t w25_Reset(const winbond_t *w25){
         vTaskDelay(1);
     }
     uint8_t opCode[] = {instruction_code::W25_DEVICE_RESET};
-    err = vspi_transmission(opCode,sizeof(opCode),nullptr,w25->handle, w25->spi_bus_mutex);
+    err = vspi_transmission(opCode,sizeof(opCode),nullptr,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
     
     return err;
 }
@@ -203,7 +221,7 @@ esp_err_t w25_Reset(const winbond_t *w25){
 esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffer_size){
     assert(buffer_size >= size_t{3});
     uint8_t opCode[5] = {instruction_code::JEDEC_ID, 0x00, 0x00, 0x00, 0x00};
-    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex);
+    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
     out_buffer[0] = opCode[2];
     out_buffer[1] = opCode[3];
     out_buffer[2] = opCode[4];
@@ -213,7 +231,7 @@ esp_err_t w25_GetJedecID(const winbond_t *w25, uint8_t *out_buffer, size_t buffe
 uint8_t w25_ReadStatusRegister(const winbond_t *w25, reg_addr register_address){
     uint8_t opCode[9] = {instruction_code::READ_STATUS_REG, register_address, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t buffer = 0;
-    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex);
+    esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
     assert(err==ESP_OK);
     if (err == ESP_OK){
         buffer = opCode[2];
@@ -227,7 +245,7 @@ bool w25_evaluateStatusRegisterBit(uint8_t registerOutput, uint8_t bitValue){
 
 esp_err_t w25_WriteStatusRegister(const winbond_t *w25, reg_addr register_address, uint8_t bitValue){
     uint8_t opCode[3] = {instruction_code::WRITE_STATUS_REG, register_address, bitValue};
-    return vspi_transmission(opCode,sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex);
+    return vspi_transmission(opCode,sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
 }
 
 esp_err_t w25_WritePermission(const winbond_t *w25, bool state){
@@ -237,7 +255,7 @@ esp_err_t w25_WritePermission(const winbond_t *w25, bool state){
     }else{
         opCode[0] = WRITE_DISABLE;
     }
-    return vspi_transmission(opCode,1,nullptr,w25->handle, w25->spi_bus_mutex);
+    return vspi_transmission(opCode,1,nullptr,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
 }
 
 esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size){
@@ -255,7 +273,7 @@ esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t
     w25->opCode[3] = 0x66; //Dummy byte
 
     assert((buffer_size + size_t{4}) <= w25->buffer_size); //Size of the sent message cant be bigger than the actual transmitted buffer
-    err = vspi_transmission(w25->opCode, buffer_size + size_t{4}, w25->opCode, w25->handle, w25->spi_bus_mutex); //THIS LINE IS CORRUPTING THE HEAP MEMORY
+    err = vspi_transmission(w25->opCode, buffer_size + size_t{4}, w25->opCode, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout); //THIS LINE IS CORRUPTING THE HEAP MEMORY
     heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
     (void)memcpy(out_buffer,&w25->opCode[4],buffer_size);
     heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
@@ -271,7 +289,7 @@ esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr){
     opCode[2] = p_page_addr[1];
     opCode[3] = p_page_addr[0];
 
-    return vspi_transmission(opCode, sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex);
+    return vspi_transmission(opCode, sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
 
 }
 
@@ -287,7 +305,7 @@ esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
         opCode[3] = p_page_addr[0];
 
         w25_WritePermission(w25,true);
-        err = vspi_transmission(opCode, sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex);
+        err = vspi_transmission(opCode, sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
 
         while(w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){ //The BUSY bit is a 1 during the Block Erase cycle and becomes a 0 when the cycle is finished 
             ESP_LOGW("MEMORY IS BUSY","\n");
@@ -315,12 +333,12 @@ esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const 
     (void)memcpy(&(w25->opCode[3]),in_buffer,buffer_size);
 
     w25_WritePermission(w25,true);
-    err = vspi_transmission(w25->opCode, buffer_size + size_t{3}, w25->opCode, w25->handle, w25->spi_bus_mutex);
+    err = vspi_transmission(w25->opCode, buffer_size + size_t{3}, w25->opCode, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
    
     return err;
 }
 
-esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr){
+esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr, uint16_t max_trial_nmb){
     
     assert(page_addr<MAX_ALLOWED_PAGEBLOCK);
     uint8_t opCode[4] = {instruction_code::PROG_EXEC,0x00,0x00,0x00};
@@ -329,13 +347,19 @@ esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr){
     opCode[2] = p_page_addr[1];
     opCode[3] = p_page_addr[0];
 
-    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex);
+    esp_err_t err = vspi_transmission(opCode, sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
 
     if (w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),P_FAIL)){
         err = ESP_ERR_INVALID_STATE;
     }else if (err == ESP_OK){
+        uint16_t trial = 0;
         while(w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){
             ESP_LOGW("MEMORY IS BUSY","\n");
+            if(trial >= max_trial_nmb){ //This ends the endless loop when the nmb of trials is exceeded
+                err = ESP_ERR_TIMEOUT;
+                break;
+            }
+            trial++;
             vTaskDelay(1);
         }
     }else{
@@ -386,7 +410,7 @@ esp_err_t w25_WriteMemory(const winbond_t *w25, uint16_t column_addr, uint16_t p
     err = w25_LoadProgramData(w25, column_addr, in_buffer, buffer_size);
     
     if (err == ESP_OK){
-        err = w25_ProgramExecute(w25, page_addr);
+        err = w25_ProgramExecute(w25, page_addr, N_OF_TRIAL);
     }
 
     return err;
