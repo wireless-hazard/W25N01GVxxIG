@@ -118,7 +118,7 @@ esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr);
 
 */
 esp_err_t w25_LoadProgramData(const winbond_t *w25, uint16_t column_addr, const uint8_t *in_buffer, size_t buffer_size);
-esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr);
+esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr, uint16_t max_trial_nmb);
 
 esp_err_t w25_Initialize(const winbond_t *w25);
 esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, uint8_t *out_buffer, size_t buffer_size);
