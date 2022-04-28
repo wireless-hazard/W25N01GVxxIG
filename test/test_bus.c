@@ -45,11 +45,11 @@ TEST_CASE("JEDED", "[]")
 
 TEST_CASE("ERASE_BLOCK", "[]")
 {	
-	esp_err_t err = w25_BlockErase(w25, 0b0000000000000000);
+	esp_err_t err = w25_BlockErase(w25, 0b0000000000000000, 20U);
 	TEST_ASSERT_EQUAL_INT (ESP_OK, err);
-	err = w25_BlockErase(w25, 65472U);
+	err = w25_BlockErase(w25, 65472U, 20U);
 	TEST_ASSERT_NOT_EQUAL(ESP_OK, err);
-	err = w25_BlockErase(w25, 0b0000000100000000);
+	err = w25_BlockErase(w25, 0b0000000100000000, 20U);
 	TEST_ASSERT_EQUAL_INT (ESP_OK, err);
 }
 
@@ -60,7 +60,7 @@ TEST_CASE("LOAD/READ TO THE INTERMEDIARY BUFFER", "[]"){
 
 	err = w25_LoadProgramData(w25, 0x0000, jedec_id, 3);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
-	err = w25_ReadDataBuffer(w25, 0x0000, jedec_recv, 3);
+	err = w25_ReadDataBuffer(w25, 0x0000, jedec_recv, 3, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 
 	TEST_ASSERT_EQUAL_HEX8_ARRAY(jedec_id, jedec_recv, 3);
@@ -70,7 +70,7 @@ TEST_CASE("WRITE/READ 1 PAGE (ERASE_BLOCK FIRST)", "[]"){
 	uint8_t jedec_id[3] = {0xAA,0xBB,0xC1};
 	uint8_t jedec_recv[3] = {0,0,0};
 
-	esp_err_t err = w25_BlockErase(w25, 0x0000);
+	esp_err_t err = w25_BlockErase(w25, 0x0000, 20U);
 	err = w25_WriteMemory(w25, 0x0000, 0x0000, jedec_id, 3);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_ReadMemory(w25, 0x0000, 0x0000, jedec_recv, 3);
@@ -85,7 +85,7 @@ TEST_CASE("WRITE/READ 2 PAGES (ERASE_BLOCK FIRST)", "[]"){
 	uint8_t jedec_id2[3] = {0xAA,0xBB,0xC1};
 	uint8_t jedec_recv[3] = {0,0,0};
 
-	esp_err_t err = w25_BlockErase(w25, 0x0000);
+	esp_err_t err = w25_BlockErase(w25, 0x0000, 20U);
 	err = w25_WriteMemory(w25, 0x0000, 0x0000, jedec_id, 3);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_WriteMemory(w25, 0x0000, 0x0001, jedec_id2, 3);
@@ -107,11 +107,11 @@ TEST_CASE("WRITE/READ DIFFERENT BLOCKS (ERASE FIRST)", "[]"){
 	uint8_t jedec_id3[3] = {0xFF, 0xFF, 0xFF}; //It means the memory is clean
 	uint8_t jedec_recv[3] = {0,0,0};
 
-	esp_err_t err = w25_BlockErase(w25, 0x0000);
+	esp_err_t err = w25_BlockErase(w25, 0x0000, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_WriteMemory(w25, 0x0000, 0x0000, jedec_id, 3);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
-	err = w25_BlockErase(w25, 0x0100);
+	err = w25_BlockErase(w25, 0x0100, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_WriteMemory(w25, 0x0000, 0x0100, jedec_id2, 3);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
@@ -137,11 +137,11 @@ TEST_CASE("PROPERLY ERASING BLOCKS", "[]"){
 	uint8_t clean_memory[10] = {0xFF}; //Vector to represent a clean memory
 	memset (clean_memory,0xFF,10);
 
-	esp_err_t err = w25_BlockErase(w25, 0x0000);
+	esp_err_t err = w25_BlockErase(w25, 0x0000, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_WriteMemory(w25, 0x0000, 0x0000, big_chunk1, 10);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
-	err = w25_BlockErase(w25, 0x0001); //Blocks are represented by the second 8 bits of the address
+	err = w25_BlockErase(w25, 0x0001, 20U); //Blocks are represented by the second 8 bits of the address
 									   //Changing the first 8 bits will re-erase the block over and over again
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_ReadMemory(w25, 0x0000, 0x0000, receiver, 10);
@@ -149,7 +149,7 @@ TEST_CASE("PROPERLY ERASING BLOCKS", "[]"){
 	TEST_ASSERT_EQUAL_HEX8_ARRAY(clean_memory, receiver, 10);
 
 	//The next correct block should be
-	err = w25_BlockErase(w25, 0x0100);
+	err = w25_BlockErase(w25, 0x0100, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_WriteMemory(w25, 0x0000, 0x0100, big_chunk2, 10);
 	err = w25_ReadMemory(w25, 0x0000, 0x0100, receiver, 10);
@@ -164,7 +164,7 @@ TEST_CASE("WRITING BIG CHUNKS OF DATA", "[]"){
 	uint8_t clean_memory[512] = {0xFF}; //Vector to represent a clean memory
 	memset (clean_memory,0xFF,512);
 
-	esp_err_t err = w25_BlockErase(w25, 0x0100);
+	esp_err_t err = w25_BlockErase(w25, 0x0100, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	err = w25_WriteMemory(w25, 0x0000, 0x0100, big_chunk1, 512);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
@@ -179,7 +179,7 @@ TEST_CASE("WRITING FLOAT ARRAYS", "[]"){
 	uint8_t receiver[128*4] = {0};
 	float *p_receiver_float = NULL;
 
-	esp_err_t err = w25_BlockErase(w25, 0x0000);
+	esp_err_t err = w25_BlockErase(w25, 0x0000, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	p_big_float_chunk = (uint8_t *)&big_float_chunk[1][0];
 	err = w25_WriteMemory(w25, 0x0000, 0x0000, p_big_float_chunk, 128*4);
@@ -192,7 +192,7 @@ TEST_CASE("WRITING FLOAT ARRAYS", "[]"){
 
 TEST_CASE("Continuous writing, same block, Start from 0", "[]"){
 
-	esp_err_t err = w25_BlockErase(w25, 0);
+	esp_err_t err = w25_BlockErase(w25, 0, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	
 	//First written Block - Start
@@ -228,7 +228,7 @@ TEST_CASE("Continuous writing, same block, Start from 0", "[]"){
 }
 
 TEST_CASE("Continuous writing, same block", "[]"){
-	esp_err_t err = w25_BlockErase(w25, 0);
+	esp_err_t err = w25_BlockErase(w25, 0, 20U);
 	TEST_ASSERT_EQUAL_INT(ESP_OK, err);
 	
 	//First written Block - Start

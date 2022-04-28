@@ -37,7 +37,7 @@ extern "C" void app_main(){
 			uint8_t *payloadUINT8_T = (uint8_t *)&payload[0]; //Since the memory accepts uint8_t converts it without changing the values
 			//if the payload was a uint8_t, the conversion wouldn't be necessary
 
-    		ESP_ERROR_CHECK(w25_BlockErase(flash_memory, 0x0000)); //The memory's block needs to be erased before writing in the address
+    		ESP_ERROR_CHECK(w25_BlockErase(flash_memory, 0x0000, 20U)); //The memory's block needs to be erased before writing in the address
     		ESP_ERROR_CHECK(w25_WriteMemory(flash_memory, 0x0000, 0x0000, payloadUINT8_T, sizeof(float)*N_SAMPLES)); 
     		//Since the float has 4x the size of an uint8_t, the samples' number has to be multiplied by sizeof(float)
 

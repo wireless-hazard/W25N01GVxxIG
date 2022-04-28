@@ -61,7 +61,7 @@ Resets the memory to its initial state, clearing volatile registers
 @param winbond_t* **w25** - pointer to the object refered to.
 @return **esp_err_t** - Error code according to esp idf documentation. 
 */
-esp_err_t w25_Reset(const winbond_t *w25);
+esp_err_t w25_Reset(const winbond_t *w25, uint16_t max_trial_nmb);
 /**
 Retrieves the memory's JEDEC ID. This function can be used to verify 
 if the device can be reached.
@@ -104,7 +104,7 @@ esp_err_t w25_WritePermission(const winbond_t *w25, bool state);
 /**
 
 */
-esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size);
+esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size, uint16_t max_trial_nmb);
 esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr);
 /**
 Sets all memory of the specified block field on the (page_addr) to the default value.
@@ -113,7 +113,7 @@ Sets all memory of the specified block field on the (page_addr) to the default v
 @param uint16_t **page_addr** - the block to be erase corresponds to the 10 most significant bits of the page_addr
 @return **esp_err_t** - Error code according to esp idf documentation.
 */
-esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr);
+esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr, uint16_t max_trial_nmb);
 /**
 
 */

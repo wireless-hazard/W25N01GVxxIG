@@ -206,16 +206,23 @@ static esp_err_t vspi_transmission(const uint8_t *opCode, size_t opCode_size, ui
 
 /* LOW LEVEL DRIVER FUNCTIONS*/
 
-esp_err_t w25_Reset(const winbond_t *w25){
+esp_err_t w25_Reset(const winbond_t *w25, uint16_t max_trial_nmb){
     
     esp_err_t err = ESP_OK;
-    
+    uint16_t trial = 0;
     while(w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){
         ESP_LOGW("MEMORY IS BUSY","\n");
+        if(trial >= max_trial_nmb){ //This ends the endless loop when the nmb of trials is exceeded
+            err = ESP_ERR_TIMEOUT;
+            break;
+        }
+        trial++;
         vTaskDelay(1);
     }
-    uint8_t opCode[] = {instruction_code::W25_DEVICE_RESET};
-    err = vspi_transmission(opCode,sizeof(opCode),nullptr,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
+    if (err == ESP_ERR_TIMEOUT){
+        uint8_t opCode[] = {instruction_code::W25_DEVICE_RESET};
+        err = vspi_transmission(opCode,sizeof(opCode),nullptr,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
+    }
     
     return err;
 }
@@ -260,25 +267,33 @@ esp_err_t w25_WritePermission(const winbond_t *w25, bool state){
     return vspi_transmission(opCode,1,nullptr,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
 }
 
-esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size){
+esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size, uint16_t max_trial_nmb){
     esp_err_t err = ESP_OK;
     assert(column_addr<=MAX_ALLOWED_ADDR); //MAXIMUM ALLOWED ADDRESS
+    uint16_t trial = 0;
     while(w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){
         ESP_LOGW("MEMORY IS BUSY","\n");
+        if(trial >= max_trial_nmb){ //This ends the endless loop when the nmb of trials is exceeded
+            err = ESP_ERR_TIMEOUT;
+            break;
+        }
+        trial++;
         vTaskDelay(1);
     }
-    uint8_t *p_column_bits = reinterpret_cast<uint8_t *>(&column_addr);
+    if (err == ESP_ERR_TIMEOUT){
+        uint8_t *p_column_bits = reinterpret_cast<uint8_t *>(&column_addr);
         
-    w25->opCode[0] = instruction_code::READ_DATA;
-    w25->opCode[1] = p_column_bits[1];
-    w25->opCode[2] = p_column_bits[0];
-    w25->opCode[3] = 0x66; //Dummy byte
+        w25->opCode[0] = instruction_code::READ_DATA;
+        w25->opCode[1] = p_column_bits[1];
+        w25->opCode[2] = p_column_bits[0];
+        w25->opCode[3] = 0x66; //Dummy byte
 
-    assert((buffer_size + size_t{4}) <= w25->buffer_size); //Size of the sent message cant be bigger than the actual transmitted buffer
-    err = vspi_transmission(w25->opCode, buffer_size + size_t{4}, w25->opCode, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout); //THIS LINE IS CORRUPTING THE HEAP MEMORY
-    heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
-    (void)memcpy(out_buffer,&w25->opCode[4],buffer_size);
-    heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
+        assert((buffer_size + size_t{4}) <= w25->buffer_size); //Size of the sent message cant be bigger than the actual transmitted buffer
+        err = vspi_transmission(w25->opCode, buffer_size + size_t{4}, w25->opCode, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout); //THIS LINE IS CORRUPTING THE HEAP MEMORY
+        heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
+        (void)memcpy(out_buffer,&w25->opCode[4],buffer_size);
+        heap_caps_check_integrity_all(true); //CHECKS THE INTEGRITY OF THE ENTIRE HEAP
+    }
      
     return err;
 }
@@ -295,7 +310,7 @@ esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr){
 
 }
 
-esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
+esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr, uint16_t max_trial_nmb){
     esp_err_t err = ESP_ERR_INVALID_ARG;
     
     if (page_addr < MAX_ALLOWED_PAGEBLOCK){
@@ -308,9 +323,14 @@ esp_err_t w25_BlockErase(const winbond_t *w25, uint16_t page_addr){
 
         w25_WritePermission(w25,true);
         err = vspi_transmission(opCode, sizeof(opCode), nullptr, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
-
+        uint16_t trial = 0;
         while(w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),STAT_BUSY)){ //The BUSY bit is a 1 during the Block Erase cycle and becomes a 0 when the cycle is finished 
             ESP_LOGW("MEMORY IS BUSY","\n");
+            if(trial >= max_trial_nmb){ //This ends the endless loop when the nmb of trials is exceeded
+                err = ESP_ERR_TIMEOUT;
+                break;
+            }
+            trial++;
             vTaskDelay(1);
         }
 
@@ -379,7 +399,7 @@ esp_err_t w25_Initialize(const winbond_t *w25){
         err = ESP_ERR_NOT_FOUND;
     }else{
 
-        ESP_ERROR_CHECK(w25_Reset(w25));
+        ESP_ERROR_CHECK(w25_Reset(w25, N_OF_TRIAL));
         vTaskDelay(800/portTICK_PERIOD_MS);
 
         ESP_ERROR_CHECK(w25_WriteStatusRegister(w25, CONFIG_REG, ECC_E|BUF|0x00));
@@ -393,7 +413,7 @@ esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t pa
     esp_err_t err = ESP_OK;
 
     ESP_ERROR_CHECK(w25_PageDataRead(w25, page_addr));
-    err = w25_ReadDataBuffer(w25, column_addr, out_buffer, buffer_size);
+    err = w25_ReadDataBuffer(w25, column_addr, out_buffer, buffer_size, N_OF_TRIAL);
 
     if((err != ESP_OK)){
         ESP_LOGE("READ MEMORY ERROR: ", "ESP_FAIL");
