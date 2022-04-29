@@ -241,7 +241,6 @@ uint8_t w25_ReadStatusRegister(const winbond_t *w25, reg_addr register_address){
     uint8_t opCode[9] = {instruction_code::READ_STATUS_REG, register_address, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t buffer = 0;
     esp_err_t err = vspi_transmission(opCode,sizeof(opCode),opCode,w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
-    assert(err==ESP_OK);
     if (err == ESP_OK){
         buffer = opCode[2];
     }
@@ -399,11 +398,14 @@ esp_err_t w25_Initialize(const winbond_t *w25){
         err = ESP_ERR_NOT_FOUND;
     }else{
 
-        ESP_ERROR_CHECK(w25_Reset(w25, N_OF_TRIAL));
+        err = w25_Reset(w25, N_OF_TRIAL);
         vTaskDelay(800/portTICK_PERIOD_MS);
 
-        ESP_ERROR_CHECK(w25_WriteStatusRegister(w25, CONFIG_REG, ECC_E|BUF|0x00));
-        ESP_ERROR_CHECK(w25_WriteStatusRegister(w25, PROTEC_REG, 0x00));
+        if (err == ESP_OK){
+
+        err = w25_WriteStatusRegister(w25, CONFIG_REG, ECC_E|BUF|0x00);
+        err = w25_WriteStatusRegister(w25, PROTEC_REG, 0x00);
+        }
     }
 
     return err;
@@ -412,12 +414,14 @@ esp_err_t w25_Initialize(const winbond_t *w25){
 esp_err_t w25_ReadMemory(const winbond_t *w25, uint16_t column_addr, uint16_t page_addr, uint8_t *out_buffer, size_t buffer_size){
     esp_err_t err = ESP_OK;
 
-    ESP_ERROR_CHECK(w25_PageDataRead(w25, page_addr));
-    err = w25_ReadDataBuffer(w25, column_addr, out_buffer, buffer_size, N_OF_TRIAL);
+    err = w25_PageDataRead(w25, page_addr);
+    if((err == ESP_OK)){
+        err = w25_ReadDataBuffer(w25, column_addr, out_buffer, buffer_size, N_OF_TRIAL);
 
-    if((err != ESP_OK)){
-        ESP_LOGE("READ MEMORY ERROR: ", "ESP_FAIL");
-        err = ESP_FAIL;
+        if((err != ESP_OK)){
+            ESP_LOGE("READ MEMORY ERROR: ", "ESP_FAIL");
+            err = ESP_FAIL;
+        }
     }
 
     if((w25_evaluateStatusRegisterBit(w25_ReadStatusRegister(w25,STATUS_REG),ECC_1))){
