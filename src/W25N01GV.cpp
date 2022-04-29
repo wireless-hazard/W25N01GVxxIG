@@ -403,8 +403,10 @@ esp_err_t w25_Initialize(const winbond_t *w25){
 
         if (err == ESP_OK){
 
-        err = w25_WriteStatusRegister(w25, CONFIG_REG, ECC_E|BUF|0x00);
-        err = w25_WriteStatusRegister(w25, PROTEC_REG, 0x00);
+            err = w25_WriteStatusRegister(w25, CONFIG_REG, ECC_E|BUF|0x00);
+            if (err == ESP_OK){
+                err = w25_WriteStatusRegister(w25, PROTEC_REG, 0x00);
+            }
         }
     }
 
