@@ -15,7 +15,7 @@
 #include "driver/gpio.h"
 #include <bitset>
 
-#define N_OF_TRIAL 20
+#define N_OF_TRIAL 100
 
 namespace{
     //Instruction Set Table
@@ -279,7 +279,7 @@ esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t
         trial++;
         vTaskDelay(1);
     }
-    if (err == ESP_ERR_TIMEOUT){
+    if (err != ESP_ERR_TIMEOUT){
         uint8_t *p_column_bits = reinterpret_cast<uint8_t *>(&column_addr);
         
         w25->opCode[0] = instruction_code::READ_DATA;
