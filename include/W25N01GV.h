@@ -106,6 +106,8 @@ esp_err_t w25_WritePermission(const winbond_t *w25, bool state);
 */
 esp_err_t w25_ReadDataBuffer(const winbond_t *w25, uint16_t column_addr, uint8_t *out_buffer, size_t buffer_size, uint16_t max_trial_nmb);
 esp_err_t w25_PageDataRead(const winbond_t *w25, uint16_t page_addr);
+
+esp_err_t w25_LastECCFailure(const winbond_t *w25, uint16_t *page_addr, uint16_t max_trial_nmb);
 /**
 Sets all memory of the specified block field on the (page_addr) to the default value.
 \remark See the Issues tab on the github repository for more information on how to use this function.

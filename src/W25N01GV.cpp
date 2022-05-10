@@ -389,6 +389,21 @@ esp_err_t w25_ProgramExecute(const winbond_t *w25, uint16_t page_addr, uint16_t 
     return err;
 }
 
+esp_err_t w25_LastECCFailure(const winbond_t *w25, uint16_t *page_addr){
+	assert(page_addr!=nullptr);
+	uint8_t opCode[]{instruction_code::LAST_ECC_FAIL_ADDR,0x00,0x66,0x66};
+	
+	esp_err_t err = vspi_transmission(opCode, sizeof(opCode), opCode, w25->handle, w25->spi_bus_mutex, w25->semaphore_timeout);
+
+	if (err == ESP_OK){
+
+    	(void)memcpy(&(reinterpret_cast<uint8_t *>(page_addr))[0], &opCode[3], 1);
+    	(void)memcpy(&(reinterpret_cast<uint8_t *>(page_addr))[1], &opCode[2], 1);
+    }
+
+	return err;
+}
+
 //High Level Functions
 
 esp_err_t w25_Initialize(const winbond_t *w25){
